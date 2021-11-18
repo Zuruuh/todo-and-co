@@ -21,9 +21,9 @@ class SecurityService
     }
     /**
      * Displays the login page.
-     * 
+     *
      * @param Request $_request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function loginAction(Request $_request): Response

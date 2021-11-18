@@ -40,9 +40,9 @@ class TaskService
     }
     /**
      * Returns a list of tasks.
-     * 
+     *
      * @param Request $_request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function listAction(Request $_request): Response
@@ -56,9 +56,9 @@ class TaskService
 
     /**
      * Creates a new task.
-     * 
+     *
      * @param Request $request The incoming http request containg the form data
-     * 
+     *
      * @return Response The html response.
      */
     public function createAction(Request $request): Response
@@ -83,10 +83,10 @@ class TaskService
 
     /**
      * Edits a task.
-     * 
+     *
      * @param Task    $task    The task to modify
      * @param Request $request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function editAction(Task $task, Request $request): Response
@@ -111,10 +111,10 @@ class TaskService
 
     /**
      * Toggles a task's state.
-     * 
+     *
      * @param Task    $task     The task to toggle
      * @param Request $_request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function toggleTaskAction(Task $task, Request $_request): Response
@@ -130,10 +130,10 @@ class TaskService
 
     /**
      * Deletes a task.
-     * 
+     *
      * @param Task    $task     The task to delete
      * @param Request $_request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function deleteTaskAction(Task $task, Request $_request): Response

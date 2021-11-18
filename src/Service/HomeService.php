@@ -18,9 +18,9 @@ class HomeService
 
     /**
      * Displays the home page.
-     * 
+     *
      * @param Request $_request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function home(Request $_request): Response
