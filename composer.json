@@ -24,7 +24,8 @@
         "incenteev/composer-parameter-handler": "^2.1",
         "symfony/flex": "^1.17",
         "symfony/twig-bundle": "5.3.*",
-        "symfony/security-bundle": "5.3.*"
+        "symfony/security-bundle": "5.3.*",
+        "symfony/webpack-encore-bundle": "^1.12"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^3.0",
