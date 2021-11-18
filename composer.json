@@ -26,10 +26,12 @@
         "symfony/polyfill-apcu": "^1.23",
         "sensio/framework-extra-bundle": "^6.2.1",
         "incenteev/composer-parameter-handler": "^2.1",
-        "symfony/flex": "^1.17"
+        "symfony/flex": "^1.17",
+        "symfony/twig-bundle": "5.3.10"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^3.0"
+        "symfony/phpunit-bridge": "^3.0",
+        "phpunit/phpunit": "^9.5"
     },
     "extra": {
         "symfony": {
