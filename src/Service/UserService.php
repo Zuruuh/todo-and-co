@@ -45,9 +45,9 @@ class UserService
 
     /**
      * Returns a list of users.
-     * 
+     *
      * @param Request $_request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function listAction(Request $_request): Response
@@ -61,9 +61,9 @@ class UserService
 
     /**
      * Creates a user.
-     * 
+     *
      * @param Request $request The incoming http request containing the form data.
-     * 
+     *
      * @return Response The html response.
      */
     public function createAction(Request $request): Response
@@ -93,10 +93,10 @@ class UserService
 
     /**
      * Edits a users.
-     * 
+     *
      * @param User    $user    The user to modify
      * @param Request $request The incoming http request
-     * 
+     *
      * @return Response The html response.
      */
     public function editAction(User $user, Request $request): Response
