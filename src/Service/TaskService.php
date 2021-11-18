@@ -2,15 +2,42 @@
 
 namespace App\Service;
 
-use AbstractService;
 use App\Entity\Task;
 use App\Form\TaskType;
+use App\Repository\TaskRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Environment;
 
-
-class TaskService extends AbstractService
+class TaskService
 {
+    private Environment $twig;
+    private TaskRepository $task_repo;
+    private FormFactoryInterface $form;
+    private EntityManagerInterface $em;
+    private FlashBagInterface $flash;
+    private UrlGeneratorInterface $router;
+
+    public function __construct(
+        Environment $twig,
+        TaskRepository $task_repo,
+        FormFactoryInterface $form,
+        EntityManagerInterface $em,
+        FlashBagInterface $flash,
+        UrlGeneratorInterface $router,
+    ) {
+        $this->twig = $twig;
+        $this->task_repo = $task_repo;
+        $this->form = $form;
+        $this->em = $em;
+        $this->flash = $flash;
+        $this->router = $router;
+    }
     /**
      * Returns a list of tasks.
      * 
@@ -46,8 +73,9 @@ class TaskService extends AbstractService
             $this->em->flush();
 
             $this->flash->add('success', 'La tâche a été bien été ajoutée.');
+            $url = $this->router->generate('task_list');
 
-            return $this->redirectToRoute('task_list');
+            return new RedirectResponse($url);
         }
 
         return $this->twig->render('task/create.html.twig', ['form' => $form->createView()]);
@@ -70,8 +98,9 @@ class TaskService extends AbstractService
         if ($form->isValid()) {
             $this->em->flush();
             $this->flash->add('success', 'La tâche a bien été modifiée.');
+            $url = $this->router->generate('task_list');
 
-            return $this->redirectToRoute('task_list');
+            return new RedirectResponse($url);
         }
 
         return $this->twig->render('task/edit.html.twig', [
@@ -94,8 +123,9 @@ class TaskService extends AbstractService
         $this->em->flush();
 
         $this->flash->add('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
+        $url = $this->router->generate('task_list');
 
-        return $this->redirectToRoute('task_list');
+        return new RedirectResponse($url);
     }
 
     /**
@@ -112,7 +142,8 @@ class TaskService extends AbstractService
         $this->em->flush();
 
         $this->flash->add('success', 'La tâche a bien été supprimée.');
+        $url = $this->router->generate('task_list');
 
-        return $this->redirectToRoute('task_list');
+        return new RedirectResponse($url);
     }
 }

@@ -2,13 +2,19 @@
 
 namespace App\Service;
 
-use AbstractService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Environment;
 
-class HomeService extends AbstractService
+class HomeService
 {
+    private Environment $twig;
 
+    public function __construct(
+        Environment $twig,
+    ) {
+        $this->twig = $twig;
+    }
 
     /**
      * Displays the home page.

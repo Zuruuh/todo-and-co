@@ -2,19 +2,45 @@
 
 namespace App\Service;
 
-use AbstractService;
 use App\Entity\User;
+use App\Repository\TaskRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Twig\Environment;
 
-class UserService extends AbstractService
+class UserService
 {
+    private Environment $twig;
+    private UserRepository $user_repo;
+    private FormFactoryInterface $form;
+    private EntityManagerInterface $em;
+    private FlashBagInterface $flash;
+    private UrlGeneratorInterface $router;
     private UserPasswordHasherInterface $password_hasher;
 
     public function __construct(
+        Environment $twig,
+        UserRepository $user_repo,
+        FormFactoryInterface $form,
+        EntityManagerInterface $em,
+        FlashBagInterface $flash,
+        UrlGeneratorInterface $router,
         UserPasswordHasherInterface $password_hasher
     ) {
+        $this->twig = $twig;
+        $this->user_repo = $user_repo;
+        $this->form = $form;
+        $this->em = $em;
+        $this->flash = $flash;
+        $this->router = $router;
         $this->password_hasher = $password_hasher;
     }
 
@@ -56,8 +82,9 @@ class UserService extends AbstractService
             $this->em->flush();
 
             $this->flash->add('success', "L'utilisateur a bien été ajouté.");
+            $url = $this->router->generate('user_list');
 
-            return $this->redirectToRoute('user_list');
+            return new RedirectResponse($url);
         }
 
         return $this->twig->render('user/create.html.twig', ['form' => $form->createView()]);
@@ -84,8 +111,9 @@ class UserService extends AbstractService
             $this->em->flush();
 
             $this->flash->add('success', "L'utilisateur a bien été modifié");
+            $url = $this->router->generate('user_list');
 
-            return $this->redirectToRoute('user_list');
+            return new RedirectResponse($url);
         }
 
         return $this->twig->render('user/edit.html.twig', ['form' => $form->createView(), 'user' => $user]);
