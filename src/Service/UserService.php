@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\User;
-use App\Repository\TaskRepository;
+use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Twig\Environment;
 
 class UserService
@@ -54,7 +53,7 @@ class UserService
     public function listAction(Request $_request): Response
     {
         $content = $this->twig->render('user/list.html.twig', [
-            'tasks' => $this->user_repo->findAll(),
+            'users' => $this->user_repo->findAll(),
         ]);
 
         return new Response($content);
@@ -74,8 +73,8 @@ class UserService
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $password = $this->password_hasher->hashPassword($user->getPassword());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $password = $this->password_hasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
 
             $this->em->persist($user);
@@ -86,8 +85,9 @@ class UserService
 
             return new RedirectResponse($url);
         }
+        $page = $this->twig->render('user/create.html.twig', ['form' => $form->createView()]);
 
-        return $this->twig->render('user/create.html.twig', ['form' => $form->createView()]);
+        return new Response($page);
     }
 
 
@@ -105,8 +105,8 @@ class UserService
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $password = $this->password_hasher->hashPassword($user->getPassword());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $password = $this->password_hasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
             $this->em->flush();
 
