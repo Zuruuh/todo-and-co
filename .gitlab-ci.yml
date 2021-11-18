@@ -35,6 +35,7 @@ phpa:
     - "phpa \
       --exclude=./src/Kernel.php \
       --exclude=./src/Extensions/ \
+      --exclude=./vendor/ \
       ./src"
   allow_failure: true
 
