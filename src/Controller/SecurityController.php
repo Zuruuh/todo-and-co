@@ -24,7 +24,6 @@ class SecurityController extends AbstractController
     }
 
     #[Route("/login_check", name: "login_check")]
-
     public function loginCheck()
     {
         // This code is never executed.
