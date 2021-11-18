@@ -2,36 +2,28 @@
 
 namespace App\Controller;
 
+use App\Service\SecurityService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    private AuthenticationUtils $auth_utils;
 
     public function __construct(
-        AuthenticationUtils $auth_utils
+        SecurityService $security_service
     ) {
-        $this->auth_utils = $auth_utils;
+        $this->security_service = $security_service;
     }
 
     #[Route("/login", name: "login")]
     public function loginAction(Request $request): Response
     {
-        $error = $this->auth_utils->getLastAuthenticationError();
-        $lastUsername = $this->auth_utils->getLastUsername();
-
-        return $this->render('security/login.html.twig', array(
-            'last_username' => $lastUsername,
-            'error'         => $error,
-        ));
+        return $this->security_service->loginAction($request);
     }
 
     #[Route("/login_check", name: "login_check")]
-
     public function loginCheck()
     {
         // This code is never executed.
