@@ -2,21 +2,27 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class SecurityController extends Controller
+class SecurityController extends AbstractController
 {
-    /**
-     * @Route("/login", name="login")
-     */
-    public function loginAction(Request $request)
-    {
-        $authenticationUtils = $this->get('security.authentication_utils');
+    private AuthenticationUtils $auth_utils;
 
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
+    public function __construct(
+        AuthenticationUtils $auth_utils
+    ) {
+        $this->auth_utils = $auth_utils;
+    }
+
+    #[Route("/login", name: "login")]
+    public function loginAction(Request $request): Response
+    {
+        $error = $this->auth_utils->getLastAuthenticationError();
+        $lastUsername = $this->auth_utils->getLastUsername();
 
         return $this->render('security/login.html.twig', array(
             'last_username' => $lastUsername,
@@ -24,18 +30,15 @@ class SecurityController extends Controller
         ));
     }
 
-    /**
-     * @Route("/login_check", name="login_check")
-     */
+    #[Route("/login_check", name: "login_check")]
+
     public function loginCheck()
     {
         // This code is never executed.
     }
 
-    /**
-     * @Route("/logout", name="logout")
-     */
-    public function logoutCheck()
+    #[Route("/logout", name: "logout")]
+    public function logout()
     {
         // This code is never executed.
     }

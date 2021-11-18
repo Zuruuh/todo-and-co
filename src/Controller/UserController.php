@@ -4,24 +4,21 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-class UserController extends Controller
+class UserController extends AbstractController
 {
-    /**
-     * @Route("/users", name="user_list")
-     */
-    public function listAction()
+    #[Route("/users", name: "user_list")]
+    public function listAction(): Response
     {
-        return $this->render('user/list.html.twig', ['users' => $this->getDoctrine()->getRepository('AppBundle:User')->findAll()]);
+        return $this->render('user/list.html.twig', ['users' => $this->getDoctrine()->getRepository(User::class)->findAll()]);
     }
 
-    /**
-     * @Route("/users/create", name="user_create")
-     */
-    public function createAction(Request $request)
+    #[Route("/users/create", name: "user_create")]
+    public function createAction(Request $request): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -44,10 +41,8 @@ class UserController extends Controller
         return $this->render('user/create.html.twig', ['form' => $form->createView()]);
     }
 
-    /**
-     * @Route("/users/{id}/edit", name="user_edit")
-     */
-    public function editAction(User $user, Request $request)
+    #[Route("/users/{id}/edit", name: "user_edit")]
+    public function editAction(User $user, Request $request): Response
     {
         $form = $this->createForm(UserType::class, $user);
 
