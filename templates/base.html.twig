@@ -35,14 +35,9 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                {% for flash_message in app.session.flashBag.get('success') %}
-                    <div class="alert alert-success" role="alert">
-                        <strong>Superbe !</strong> {{ flash_message }}
-                    </div>
-                {% endfor %}
-                {% for flash_message in app.session.flashBag.get('error') %}
-                    <div class="alert alert-danger" role="alert">
-                        <strong>Oops !</strong> {{ flash_message }}
+                {% for type, message in app.session.FlashBag.all() %}
+                    <div class="alert alert-{{type}}" role="alert">
+                        <span>{{ message }}</span>
                     </div>
                 {% endfor %}
                 {% block header_title %}{% endblock %}
