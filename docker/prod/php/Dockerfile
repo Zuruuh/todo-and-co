@@ -36,13 +36,7 @@ RUN pecl install apcu-5.1.17 && \
     docker-php-ext-install pdo && \
     docker-php-ext-install pdo_pgsql && \
     docker-php-ext-install pgsql && \
-    docker-php-ext-install zip && \
-    docker-php-ext-enable apcu && \
-    docker-php-ext-enable opcache && \
-    docker-php-ext-enable pdo && \
-    docker-php-ext-enable pdo_pgsql && \
-    docker-php-ext-enable pgsql && \
-    docker-php-ext-enable zip
+    docker-php-ext-install zip
 
 ## Configuring php & symfony
 RUN echo "short_open_tag = off" >> /usr/local/etc/php/php.ini && \
