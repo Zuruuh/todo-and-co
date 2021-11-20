@@ -38,6 +38,8 @@ services:
       - ./:/srv/
 
   node:
+    environment:
+      - NODE_ENV=dev
     build:
       context: ./docker/dev/node
     working_dir: /srv
