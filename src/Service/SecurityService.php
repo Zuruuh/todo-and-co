@@ -30,7 +30,6 @@ class SecurityService
     {
         $error = $this->auth_utils->getLastAuthenticationError();
         $lastUsername = $this->auth_utils->getLastUsername();
-        dump($this);
 
         $content = $this->twig->render('security/login.html.twig', [
             'last_username' => $lastUsername,
