@@ -1,3 +1,0 @@
-ARG VERSION
-
-FROM postgres:${VERSION}
