@@ -18,7 +18,7 @@ use Twig\Environment;
 class UserService
 {
     private Environment $twig;
-    private UserRepository $user_repo;
+    private UserRepository $userRepo;
     private FormFactoryInterface $form;
     private EntityManagerInterface $em;
     private FlashBagInterface $flash;
@@ -27,7 +27,7 @@ class UserService
 
     public function __construct(
         Environment $twig,
-        UserRepository $user_repo,
+        UserRepository $userRepo,
         FormFactoryInterface $form,
         EntityManagerInterface $em,
         FlashBagInterface $flash,
@@ -35,7 +35,7 @@ class UserService
         UserPasswordHasherInterface $password_hasher
     ) {
         $this->twig = $twig;
-        $this->user_repo = $user_repo;
+        $this->userRepo = $userRepo;
         $this->form = $form;
         $this->em = $em;
         $this->flash = $flash;
@@ -53,7 +53,7 @@ class UserService
     public function listAction(Request $_request): Response
     {
         $content = $this->twig->render('user/list.html.twig', [
-            'users' => $this->user_repo->findAll(),
+            'users' => $this->userRepo->findAll(),
         ]);
 
         return new Response($content);

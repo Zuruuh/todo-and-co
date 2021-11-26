@@ -17,7 +17,7 @@ use Twig\Environment;
 class TaskService
 {
     private Environment $twig;
-    private TaskRepository $task_repo;
+    private TaskRepository $taskRepo;
     private FormFactoryInterface $form;
     private EntityManagerInterface $em;
     private FlashBagInterface $flash;
@@ -25,14 +25,14 @@ class TaskService
 
     public function __construct(
         Environment $twig,
-        TaskRepository $task_repo,
+        TaskRepository $taskRepo,
         FormFactoryInterface $form,
         EntityManagerInterface $em,
         FlashBagInterface $flash,
         UrlGeneratorInterface $router,
     ) {
         $this->twig = $twig;
-        $this->task_repo = $task_repo;
+        $this->taskRepo = $taskRepo;
         $this->form = $form;
         $this->em = $em;
         $this->flash = $flash;
@@ -47,8 +47,10 @@ class TaskService
      */
     public function listAction(Request $_request): Response
     {
+        $tasks = $this->taskRepo->findAll();
+
         $content = $this->twig->render('task/list.html.twig', [
-            'tasks' => $this->task_repo->findAll()
+            'tasks' => $tasks
         ]);
 
         return new Response($content);
@@ -77,8 +79,9 @@ class TaskService
 
             return new RedirectResponse($url);
         }
+        $page = $this->twig->render('task/create.html.twig', ['form' => $form->createView()]);
 
-        return $this->twig->render('task/create.html.twig', ['form' => $form->createView()]);
+        return new Response($page);
     }
 
     /**
