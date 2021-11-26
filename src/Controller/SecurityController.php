@@ -12,15 +12,15 @@ class SecurityController extends AbstractController
 {
 
     public function __construct(
-        SecurityService $security_service
+        SecurityService $securityService
     ) {
-        $this->security_service = $security_service;
+        $this->securityService = $securityService;
     }
 
     #[Route("/login", name: "login")]
     public function loginAction(Request $request): Response
     {
-        return $this->security_service->loginAction($request);
+        return $this->securityService->loginAction($request);
     }
 
     #[Route("/login_check", name: "login_check")]

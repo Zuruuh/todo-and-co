@@ -10,17 +10,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
-    private HomeService $home_service;
+    private HomeService $homeService;
 
     public function __construct(
-        HomeService $home_service
+        HomeService $homeService
     ) {
-        $this->home_service = $home_service;
+        $this->homeService = $homeService;
     }
 
     #[Route("/", name: "homepage")]
     public function home(Request $request): Response
     {
-        return $this->home_service->home($request);
+        return $this->homeService->home($request);
     }
 }

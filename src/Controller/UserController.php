@@ -11,29 +11,29 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-    private UserService $user_service;
+    private UserService $userService;
 
     public function __construct(
-        UserService $user_service
+        UserService $userService
     ) {
-        $this->user_service = $user_service;
+        $this->userService = $userService;
     }
 
     #[Route("/users", name: "user_list")]
     public function listAction(Request $request): Response
     {
-        return $this->user_service->listAction($request);
+        return $this->userService->listAction($request);
     }
 
     #[Route("/users/create", name: "user_create")]
     public function createAction(Request $request): Response
     {
-        return $this->user_service->createAction($request);
+        return $this->userService->createAction($request);
     }
 
     #[Route("/users/{id}/edit", name: "user_edit")]
     public function editAction(User $user, Request $request): Response
     {
-        return $this->user_service->editAction($user, $request);
+        return $this->userService->editAction($user, $request);
     }
 }
