@@ -1,4 +1,7 @@
 {
+    "dbrekelmans/bdi": {
+        "version": "1.0"
+    },
     "doctrine/annotations": {
         "version": "1.13",
         "recipe": {
@@ -75,6 +78,9 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
+    },
+    "php-webdriver/webdriver": {
+        "version": "1.12.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -183,6 +189,9 @@
     "symfony/asset": {
         "version": "v5.3.4"
     },
+    "symfony/browser-kit": {
+        "version": "v5.3.4"
+    },
     "symfony/cache": {
         "version": "v5.3.10"
     },
@@ -227,6 +236,9 @@
     },
     "symfony/doctrine-messenger": {
         "version": "v5.3.10"
+    },
+    "symfony/dom-crawler": {
+        "version": "v5.3.7"
     },
     "symfony/dotenv": {
         "version": "v5.3.10"
@@ -280,6 +292,9 @@
             "src/Controller/.gitignore"
         ]
     },
+    "symfony/http-client": {
+        "version": "v5.3.10"
+    },
     "symfony/http-client-contracts": {
         "version": "v2.4.0"
     },
@@ -331,6 +346,15 @@
     "symfony/options-resolver": {
         "version": "v5.3.7"
     },
+    "symfony/panther": {
+        "version": "1.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "877d853a05c6713665a2f4b954734592680abff6"
+        }
+    },
     "symfony/password-hasher": {
         "version": "v5.3.8"
     },
@@ -351,6 +375,9 @@
     },
     "symfony/polyfill-intl-icu": {
         "version": "v1.23.0"
+    },
+    "symfony/process": {
+        "version": "v5.3.7"
     },
     "symfony/property-access": {
         "version": "v5.3.8"
