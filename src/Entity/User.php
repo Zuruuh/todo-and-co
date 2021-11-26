@@ -2,48 +2,45 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ORM\Table(name="`user`")
- * @UniqueEntity("email")
- */
+
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[UniqueEntity('email', message: 'Cette addresse mail est déjà utilisée.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(type: 'integer')]
+
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=32, unique=true)
-     * @Assert\NotBlank(message="Vous devez saisir un nom d'utilisateur.")
-     */
+
+    #[ORM\Column(type: 'string', length: 32, unique: true)]
+    #[Assert\NotBlank(message: "Vous devez saisir un nom d'utilisateur.")]
     private $username;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+
+    #[ORM\Column(type: 'json')]
     private $roles = [];
 
     /**
-     * @var string The hashed password
-     * @ORM\Column(type="string")
+     * @var string The hashed password.
      */
+    #[ORM\Column(type: 'string')]
     private $password;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank(message="Vous devez saisir une adresse email.")
-     * @Assert\Email(message="Le format de l'adresse n'est pas correcte.")
-     */
+
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[Assert\NotBlank(message: 'Vous devez saisir une adresse email.')]
+    #[Assert\Email(message: "Le format de l'adresse n'est pas correcte.")]
     private $email;
 
     public function getId(): ?int
@@ -52,7 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * The public representation of the user (e.g. a username, an email address, etc.)
+     * The public representation of the user (e.g. a username, an email address, etc.).
      *
      * @see UserInterface
      */
@@ -62,7 +59,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @deprecated since Symfony 5.3, use getUserIdentifier instead
+     * @deprecated since Symfony 5.3, use getUserIdentifier instead.
      */
     public function getUsername(): string
     {
