@@ -18,7 +18,7 @@
         <div class="container">
             <div class="navbar-header">
                 <a class="navbar-brand" href="{{ path('homepage') }}">To Do List app</a>
-                <img src="{{ asset('build/images/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" />
+                <img src="{{ asset('build/images/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" class="navbar-logo" />
             </div>
         </div>
     </nav>
@@ -35,9 +35,14 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                {% for type, message in app.session.FlashBag.all() %}
-                    <div class="alert alert-{{type}}" role="alert">
-                        <span>{{ message }}</span>
+                {% for message in app.session.flashBag.get('success') %}
+                    <div class="alert alert-success" role="alert">
+                        <strong>Superbe !</strong> {{ message }}
+                    </div>
+                {% endfor %}
+                {% for message in app.session.flashBag.get('error') %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Oops !</strong> {{ message }}
                     </div>
                 {% endfor %}
                 {% block header_title %}{% endblock %}
