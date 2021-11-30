@@ -33,7 +33,7 @@
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
 
-    <extensions>
+<!--<extensions>
         <extension class="Symfony\Component\Panther\ServerExtension" />
-    </extensions>
+    </extensions> -->
 </phpunit>

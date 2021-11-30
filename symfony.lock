@@ -14,8 +14,23 @@
             "config/routes/annotations.yaml"
         ]
     },
+    "doctrine/cache": {
+        "version": "2.1.1"
+    },
+    "doctrine/collections": {
+        "version": "1.6.8"
+    },
+    "doctrine/common": {
+        "version": "3.2.0"
+    },
     "doctrine/data-fixtures": {
         "version": "1.5.1"
+    },
+    "doctrine/dbal": {
+        "version": "3.2.0"
+    },
+    "doctrine/deprecations": {
+        "version": "v0.5.3"
     },
     "doctrine/doctrine-bundle": {
         "version": "2.4",
@@ -58,14 +73,44 @@
             "migrations/.gitignore"
         ]
     },
+    "doctrine/event-manager": {
+        "version": "1.1.1"
+    },
+    "doctrine/inflector": {
+        "version": "2.0.4"
+    },
+    "doctrine/instantiator": {
+        "version": "1.4.0"
+    },
+    "doctrine/lexer": {
+        "version": "1.2.1"
+    },
     "doctrine/migrations": {
         "version": "3.3.2"
+    },
+    "doctrine/orm": {
+        "version": "2.10.2"
+    },
+    "doctrine/persistence": {
+        "version": "2.2.3"
+    },
+    "doctrine/sql-formatter": {
+        "version": "1.1.2"
+    },
+    "egulias/email-validator": {
+        "version": "3.1.2"
     },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
+    "incenteev/composer-parameter-handler": {
+        "version": "v2.1.4"
+    },
     "laminas/laminas-code": {
         "version": "4.4.3"
+    },
+    "monolog/monolog": {
+        "version": "2.3.5"
     },
     "myclabs/deep-copy": {
         "version": "1.10.2"
@@ -78,9 +123,6 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "php-webdriver/webdriver": {
-        "version": "1.12.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -122,6 +164,18 @@
             "phpunit.xml.dist",
             "tests/bootstrap.php"
         ]
+    },
+    "psr/cache": {
+        "version": "2.0.0"
+    },
+    "psr/container": {
+        "version": "1.1.2"
+    },
+    "psr/event-dispatcher": {
+        "version": "1.0.0"
+    },
+    "psr/log": {
+        "version": "2.0.0"
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
@@ -182,6 +236,9 @@
         "files": [
             "config/packages/sensio_framework_extra.yaml"
         ]
+    },
+    "swiftmailer/swiftmailer": {
+        "version": "v6.3.0"
     },
     "symfony/amqp-messenger": {
         "version": "v5.3.7"
@@ -292,9 +349,6 @@
             "src/Controller/.gitignore"
         ]
     },
-    "symfony/http-client": {
-        "version": "v5.3.10"
-    },
     "symfony/http-client-contracts": {
         "version": "v2.4.0"
     },
@@ -346,15 +400,6 @@
     "symfony/options-resolver": {
         "version": "v5.3.7"
     },
-    "symfony/panther": {
-        "version": "1.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "877d853a05c6713665a2f4b954734592680abff6"
-        }
-    },
     "symfony/password-hasher": {
         "version": "v5.3.8"
     },
@@ -373,11 +418,41 @@
             "tests/bootstrap.php"
         ]
     },
+    "symfony/polyfill-apcu": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-ctype": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-iconv": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.23.1"
+    },
     "symfony/polyfill-intl-icu": {
         "version": "v1.23.0"
     },
-    "symfony/process": {
-        "version": "v5.3.7"
+    "symfony/polyfill-intl-idn": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-mbstring": {
+        "version": "v1.23.1"
+    },
+    "symfony/polyfill-php72": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-php73": {
+        "version": "v1.23.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.23.1"
+    },
+    "symfony/polyfill-php81": {
+        "version": "v1.23.0"
     },
     "symfony/property-access": {
         "version": "v5.3.8"
@@ -533,6 +608,9 @@
     },
     "twig/extra-bundle": {
         "version": "v3.3.3"
+    },
+    "twig/twig": {
+        "version": "v3.3.4"
     },
     "webmozart/assert": {
         "version": "1.10.0"
