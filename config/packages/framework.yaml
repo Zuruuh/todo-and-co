@@ -1,6 +1,7 @@
 framework:
   secret: "%env(APP_SECRET)%"
   csrf_protection: true
+  test: true
   session:
     handler_id: null
     cookie_secure: auto
