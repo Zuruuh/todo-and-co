@@ -1,5 +1,3 @@
-## Todo Generate Drivers
-
 ## ----------------------------
 ##
 ## BileMo
@@ -10,12 +8,13 @@
 ##
 ##
 
-DOCKER_COMPOSE  = docker-compose -f docker-compose.dev.yaml
+DOCKER_COMPOSE  = docker-compose -f docker-compose.yaml
 
 EXEC_PHP        = $(DOCKER_COMPOSE) exec -T php /entrypoint
 EXEC_JS         = $(DOCKER_COMPOSE) exec -T node /entrypoint
 
 SYMFONY         = $(EXEC_PHP) bin/console
+PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html dist
 COMPOSER        = $(EXEC_PHP) composer
 YARN        	= $(EXEC_JS) yarn
 
@@ -29,10 +28,15 @@ kill:
 
 install: ## Install and start the project
 install: .env.local build start assets db
-#install: env .env.local build start db
+
+restart: ## STop the project and restart it using latest docker images
+restart: kill install
 
 reset: ## Stop and start a fresh install of the project
-reset: kill install
+reset: kill remove install
+
+remove:
+	-rm -rf vendor node_modules "*driver" drivers var
 
 start: ## Start the containers
 	$(DOCKER_COMPOSE) up -d --remove-orphans --no-recreate
@@ -47,8 +51,9 @@ clean: kill
 no-docker:
 	$(eval DOCKER_COMPOSE := \#)
 	$(eval EXEC_PHP := )
+	$(eval EXEC_JS := )
 
-.PHONY: build kill install reset start stop clean no-docker
+.PHONY: build kill install reset restart start stop clean no-docker remove
 
 ##
 ## -----
@@ -97,6 +102,9 @@ node_modules: yarn.lock
 	$(YARN) install
 	@touch -c node_modules
 
+#web_drivers: drivers
+# 	$(EXEC_PHP) vendor/bin/bdi browser:chromium --browser-path /usr/bin/chromium-browser ./drivers
+
 #< Dependencies <#
 
 .env.local: .env
@@ -110,7 +118,7 @@ node_modules: yarn.lock
 		cp .env .env.local;\
 	fi
 
-.PHONY: db migration migrate db-update-schema db-validate-schema env keys
+.PHONY: db migration migrate db-update-schema db-validate-schema env # web_drivers
 
 ## 
 ## -----
@@ -118,11 +126,21 @@ node_modules: yarn.lock
 ## 
 ## 
 
-test: ## Run all tests in the tests/ folder
-test:
-	$(EXEC_PHP) bin/phpunit
+test-env: start vendor 
 
-.PHONY: test
+unit: ## Run all unit tests
+unit: test-env
+	$(PHPUNIT) --group unit
+
+#e2e: ## Run all End-To-End tests
+#e2e: test-env web_drivers
+#	$(PHPUNIT) --group e2e
+
+test: ## Run all tests in the tests/ folder
+test: test-env db unit # e2e # E2E Tests are disabled for now as panther is not working in docker containers
+	$(PHPUNIT)
+
+.PHONY: test-env unit test # e2e
 
 .DEFAULT_GOAL := help
 help:
