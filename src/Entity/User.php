@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[UniqueEntity('email', message: 'Cette addresse mail est déjà utilisée.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const USER_ROLE = 'ROLE_USER';
 
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
@@ -51,15 +52,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @see UserInterface
      */
-    public function getUserIdentifier(): string
+    public function getUserIdentifier(): ?string
     {
         return (string) $this->username;
     }
 
     /**
      * @deprecated since Symfony 5.3, use getUserIdentifier instead.
+     * @codeCoverageIgnore
      */
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -74,7 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Returning a salt is only needed, if you are not using a modern
      * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
+     * @codeCoverageIgnore
      * @see UserInterface
      */
     public function getSalt(): ?string
@@ -82,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return null;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -94,7 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -112,25 +114,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
+        $roles[] = self::USER_ROLE;
 
         return array_unique($roles);
     }
     public function setRoles(array $roles): self
     {
+        if (($key = array_search(self::USER_ROLE, $roles)) !== false) {
+            unset($roles[$key]);
+        }
         $this->roles = array_unique($roles);
 
         return $this;
     }
 
-    public function addRole(string|array $role): self
+    public function addRole(mixed $role): self
     {
         $roles = gettype($role) === 'string' ? [$role] : $role;
-        $this->setRoles($this->getRoles(), ...$roles);
+        $this->setRoles(
+            array_merge($this->getRoles(), $roles)
+        );
 
         return $this;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function eraseCredentials()
     {
     }
