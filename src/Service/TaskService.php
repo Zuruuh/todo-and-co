@@ -38,6 +38,9 @@ class TaskService
         $this->flash = $flash;
         $this->router = $router;
     }
+
+    /*>>> Actions >>>*/
+
     /**
      * Returns a list of tasks.
      *
@@ -47,7 +50,7 @@ class TaskService
      */
     public function listAction(Request $_request): Response
     {
-        $tasks = $this->taskRepo->findAll();
+        $tasks = $this->list();
 
         $content = $this->twig->render('task/list.html.twig', [
             'tasks' => $tasks
@@ -65,17 +68,11 @@ class TaskService
      */
     public function createAction(Request $request): Response
     {
-        $task = new Task();
-        $form = $this->form->create(TaskType::class, $task);
-
-        $form->handleRequest($request);
+        [$form, $task] = $this->generateForm($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->em->persist($task);
-            $this->em->flush();
-
-            $this->flash->add('success', 'La tâche a été bien été ajoutée.');
-            $url = $this->router->generate('task_list');
+            [$message, $url] = $this->save($task);
+            $this->flash->add('success', $message);
 
             return new RedirectResponse($url);
         }
@@ -94,14 +91,11 @@ class TaskService
      */
     public function editAction(Task $task, Request $request): Response
     {
-        $form = $this->form->create(TaskType::class, $task);
-
-        $form->handleRequest($request);
+        [$form, $task] = $this->generateForm($request, $task);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->em->flush();
-            $this->flash->add('success', 'La tâche a bien été modifiée.');
-            $url = $this->router->generate('task_list');
+            [$message, $url] = $this->update();
+            $this->flash->add('success', $message);
 
             return new RedirectResponse($url);
         }
@@ -120,13 +114,10 @@ class TaskService
      *
      * @return Response The html response.
      */
-    public function toggleTaskAction(Task $task, Request $_request): Response
+    public function toggleAction(Task $task, Request $_request): Response
     {
-        $task->toggle(!$task->isDone());
-        $this->em->flush();
-
-        $this->flash->add('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
-        $url = $this->router->generate('task_list');
+        [$message, $url] = $this->toggle($task);
+        $this->flash->add('success', $message);
 
         return new RedirectResponse($url);
     }
@@ -139,14 +130,93 @@ class TaskService
      *
      * @return Response The html response.
      */
-    public function deleteTaskAction(Task $task, Request $_request): Response
+    public function deleteAction(Task $task, Request $_request): Response
+    {
+        [$message, $url] = $this->delete($task);
+        $this->flash->add('success', $message);
+
+        return new RedirectResponse($url);
+    }
+
+    /*<<< Actions <<<*/
+    /*>>> Helpers >>>*/
+
+    /**
+     * @return [FormInterface,Task]
+     */
+    public function generateForm(?Request $request = null, ?Task $task = null): array
+    {
+        $task = $task ?? new Task();
+        $form = $this->form->create(TaskType::class, $task);
+        if ($request) {
+            $form->handleRequest($request);
+        }
+
+        return [$form, $task];
+    }
+
+    /*<<< Helpers <<<*/
+
+    /**
+     * @return Task[]
+     */
+    public function list(): array
+    {
+        return $this->taskRepo->findAll();
+    }
+
+    /**
+     * @return string[]
+     */
+    public function save(Task $task): array
+    {
+        $this->em->persist($task);
+        $this->em->flush();
+
+        $message = 'La tâche a été bien été ajoutée.';
+        $url = $this->router->generate('task_list');
+
+        return [$message, $url];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function update(): array
+    {
+        $this->em->flush();
+
+        $message = 'La tâche a bien été modifiée.';
+        $url = $this->router->generate('task_list');
+
+        return [$message, $url];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function toggle(Task $task): array
+    {
+        $task->toggle();
+        $this->em->flush();
+
+        $message = sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $task->getIsDone() ? 'faite' : 'non faite');
+        $url = $this->router->generate('task_list');
+
+        return [$message, $url];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function delete(Task $task): array
     {
         $this->em->remove($task);
         $this->em->flush();
 
-        $this->flash->add('success', 'La tâche a bien été supprimée.');
+        $message = 'La tâche a bien été supprimée.';
         $url = $this->router->generate('task_list');
 
-        return new RedirectResponse($url);
+        return [$message, $url];
     }
 }
