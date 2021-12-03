@@ -20,13 +20,12 @@ class SecurityService
         $this->authUtils = $authUtils;
     }
     /**
+     * @codeCoverageIgnore
      * Displays the login page.
-     *
-     * @param Request $_request The incoming http request
      *
      * @return Response The html response.
      */
-    public function loginAction(Request $_request): Response
+    public function loginAction(): Response
     {
         $error = $this->authUtils->getLastAuthenticationError();
         $lastUsername = $this->authUtils->getLastUsername();
