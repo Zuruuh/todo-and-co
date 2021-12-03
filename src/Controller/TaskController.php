@@ -9,6 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TaskController extends AbstractController
 {
     private TaskService $taskService;
@@ -38,14 +41,14 @@ class TaskController extends AbstractController
     }
 
     #[Route("/tasks/{id}/toggle", name: "task_toggle")]
-    public function toggleTaskAction(Task $task, Request $request): Response
+    public function toggleAction(Task $task, Request $request): Response
     {
-        return $this->taskService->toggleTaskAction($task, $request);
+        return $this->taskService->toggleAction($task, $request);
     }
 
     #[Route("/tasks/{id}/delete", name: "task_delete")]
-    public function deleteTaskAction(Task $task, Request $request): Response
+    public function deleteAction(Task $task, Request $request): Response
     {
-        return $this->taskService->deleteTaskAction($task, $request);
+        return $this->taskService->deleteAction($task, $request);
     }
 }
