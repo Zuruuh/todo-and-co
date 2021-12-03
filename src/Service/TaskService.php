@@ -10,9 +10,10 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class TaskService
 {
@@ -20,7 +21,7 @@ class TaskService
     private TaskRepository $taskRepo;
     private FormFactoryInterface $form;
     private EntityManagerInterface $em;
-    private FlashBagInterface $flash;
+    private FlashBag $flashes;
     private UrlGeneratorInterface $router;
 
     public function __construct(
@@ -28,27 +29,26 @@ class TaskService
         TaskRepository $taskRepo,
         FormFactoryInterface $form,
         EntityManagerInterface $em,
-        FlashBagInterface $flash,
+        SessionInterface $session,
         UrlGeneratorInterface $router,
     ) {
         $this->twig = $twig;
         $this->taskRepo = $taskRepo;
         $this->form = $form;
         $this->em = $em;
-        $this->flash = $flash;
+        $this->flashes = $session->getBag('flashes');
         $this->router = $router;
     }
 
     /*>>> Actions >>>*/
 
     /**
+     * @codeCoverageIgnore
      * Returns a list of tasks.
-     *
-     * @param Request $_request The incoming http request
      *
      * @return Response The html response.
      */
-    public function listAction(Request $_request): Response
+    public function listAction(): Response
     {
         $tasks = $this->list();
 
@@ -60,6 +60,7 @@ class TaskService
     }
 
     /**
+     * @codeCoverageIgnore
      * Creates a new task.
      *
      * @param Request $request The incoming http request containg the form data
@@ -72,7 +73,7 @@ class TaskService
 
         if ($form->isSubmitted() && $form->isValid()) {
             [$message, $url] = $this->save($task);
-            $this->flash->add('success', $message);
+            $this->flashes->add('success', $message);
 
             return new RedirectResponse($url);
         }
@@ -82,6 +83,7 @@ class TaskService
     }
 
     /**
+     * @codeCoverageIgnore
      * Edits a task.
      *
      * @param Task    $task    The task to modify
@@ -95,7 +97,7 @@ class TaskService
 
         if ($form->isSubmitted() && $form->isValid()) {
             [$message, $url] = $this->update();
-            $this->flash->add('success', $message);
+            $this->flashes->add('success', $message);
 
             return new RedirectResponse($url);
         }
@@ -107,33 +109,31 @@ class TaskService
     }
 
     /**
+     * @codeCoverageIgnore
      * Toggles a task's state.
      *
      * @param Task    $task     The task to toggle
-     * @param Request $_request The incoming http request
-     *
      * @return Response The html response.
      */
-    public function toggleAction(Task $task, Request $_request): Response
+    public function toggleAction(Task $task,): Response
     {
         [$message, $url] = $this->toggle($task);
-        $this->flash->add('success', $message);
+        $this->flashes->add('success', $message);
 
         return new RedirectResponse($url);
     }
 
     /**
+     * @codeCoverageIgnore
      * Deletes a task.
      *
      * @param Task    $task     The task to delete
-     * @param Request $_request The incoming http request
-     *
      * @return Response The html response.
      */
-    public function deleteAction(Task $task, Request $_request): Response
+    public function deleteAction(Task $task,): Response
     {
         [$message, $url] = $this->delete($task);
-        $this->flash->add('success', $message);
+        $this->flashes->add('success', $message);
 
         return new RedirectResponse($url);
     }
