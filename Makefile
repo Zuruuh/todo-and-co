@@ -18,6 +18,8 @@ PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html dist
 COMPOSER        = $(EXEC_PHP) composer
 YARN        	= $(EXEC_JS) yarn
 
+APP_ENV         = dev
+
 build:
 	$(DOCKER_COMPOSE) pull --parallel --quiet --ignore-pull-failures 2> /dev/null
 	$(DOCKER_COMPOSE) build --pull
@@ -36,7 +38,7 @@ reset: ## Stop and start a fresh install of the project
 reset: kill remove install
 
 remove:
-	-rm -rf vendor node_modules "*driver" drivers var
+	-rm -rf vendor node_modules var
 
 start: ## Start the containers
 	$(DOCKER_COMPOSE) up -d --remove-orphans --no-recreate
@@ -63,10 +65,10 @@ no-docker:
 
 db: ## Setup local database and load fake data
 db: .env.local vendor
-	-$(SYMFONY) doctrine:database:drop --if-exists --force
-	-$(SYMFONY) doctrine:database:create --if-not-exists
-	$(SYMFONY) d:m:m --no-interaction --allow-no-migration
-	$(SYMFONY) d:f:l --no-interaction --purge-with-truncate
+	-$(SYMFONY) --env=$(APP_ENV) doctrine:database:drop --if-exists --force
+	-$(SYMFONY) --env=$(APP_ENV) doctrine:database:create --if-not-exists
+	$(SYMFONY) --env=$(APP_ENV) d:m:m --no-interaction --allow-no-migration
+	$(SYMFONY) --env=$(APP_ENV) d:f:l --no-interaction --purge-with-truncate
 
 migration: ## Create a new doctrine migration
 migration: vendor
@@ -102,9 +104,6 @@ node_modules: yarn.lock
 	$(YARN) install
 	@touch -c node_modules
 
-#web_drivers: drivers
-# 	$(EXEC_PHP) vendor/bin/bdi browser:chromium --browser-path /usr/bin/chromium-browser ./drivers
-
 #< Dependencies <#
 
 .env.local: .env
@@ -118,7 +117,7 @@ node_modules: yarn.lock
 		cp .env .env.local;\
 	fi
 
-.PHONY: db migration migrate db-update-schema db-validate-schema env # web_drivers
+.PHONY: db migration migrate db-update-schema db-validate-schema env
 
 ## 
 ## -----
@@ -126,21 +125,19 @@ node_modules: yarn.lock
 ## 
 ## 
 
-test-env: start vendor 
+test-env:
+	$(eval APP_ENV := test)
 
 unit: ## Run all unit tests
-unit: test-env
+unit: test-env db
 	$(PHPUNIT) --group unit
 
-#e2e: ## Run all End-To-End tests
-#e2e: test-env web_drivers
-#	$(PHPUNIT) --group e2e
-
 test: ## Run all tests in the tests/ folder
-test: test-env db unit # e2e # E2E Tests are disabled for now as panther is not working in docker containers
+test: #install unit 
+test: unit 
 	$(PHPUNIT)
 
-.PHONY: test-env unit test # e2e
+.PHONY: unit test test-env
 
 .DEFAULT_GOAL := help
 help:
