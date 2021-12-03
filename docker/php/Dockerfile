@@ -13,8 +13,6 @@ RUN set -ex && \
     unzip \
     libzip-dev \
     libpq \
-    #chromium \
-    #chromium-chromedriver \
     zlib-dev && \
     apk add postgresql-dev=9.6.10-r0 --repository=http://dl-cdn.alpinelinux.org/alpine/v3.5/main
 
