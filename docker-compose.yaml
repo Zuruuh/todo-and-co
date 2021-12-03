@@ -8,49 +8,46 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-symfony}
       POSTGRES_USER: ${POSTGRES_USER:-symfony}
     volumes:
-      - database:/var/lib/postgresql
+      - database:/var/lib/postgresql:rw
     ports:
       - "5432"
 
-  http:
+  nginx:
     image: nginx:1-alpine
     depends_on:
       - php
       - node
-      - host-bridge
     volumes:
-      - ./docker/dev/nginx/vhost.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/vhost.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public/:/srv/public/:ro
-
-  app:
-    build:
-      context: ./docker/dev/h2-proxy
-    depends_on:
-      - http
+    ports:
+      - "8000:80"
 
   php:
-    environment:
-      - APP_ENV=dev
     build:
-      context: ./docker/dev/php
+      context: ./docker/php
     working_dir: /srv
     volumes:
-      - ./:/srv/
+      - ./:/srv/:rw
+      - ./docker/php/config/php.ini:/usr/local/etc/php/php.ini:ro
+      - ./docker/php/config/symfony.ini:/usr/local/etc/php/conf.d/symfony.ini:ro
+      - ./docker/php/config/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
+    expose:
+      - 9000
+
+    environment:
+      APP_ENV: dev
+      BLACKFIRE_SERVER_ID: ~
+      BLACKFIRE_SERVER_TOKEN: ~
 
   node:
     environment:
       - NODE_ENV=dev
     build:
-      context: ./docker/dev/node
+      context: ./docker/node
     working_dir: /srv
     volumes:
       - ./:/srv/
-
-  host-bridge:
-    image: iamluc/docker-hostmanager
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /etc/hosts:/hosts
 
 networks:
   default:

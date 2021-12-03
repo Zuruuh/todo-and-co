@@ -8,14 +8,17 @@
 ##
 ##
 
-DOCKER_COMPOSE  = docker-compose -f docker-compose.dev.yaml
+DOCKER_COMPOSE  = docker-compose -f docker-compose.yaml
 
 EXEC_PHP        = $(DOCKER_COMPOSE) exec -T php /entrypoint
 EXEC_JS         = $(DOCKER_COMPOSE) exec -T node /entrypoint
 
 SYMFONY         = $(EXEC_PHP) bin/console
+PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html dist
 COMPOSER        = $(EXEC_PHP) composer
 YARN        	= $(EXEC_JS) yarn
+
+APP_ENV         = dev
 
 build:
 	$(DOCKER_COMPOSE) pull --parallel --quiet --ignore-pull-failures 2> /dev/null
@@ -27,10 +30,15 @@ kill:
 
 install: ## Install and start the project
 install: .env.local build start assets db
-#install: env .env.local build start db
+
+restart: ## STop the project and restart it using latest docker images
+restart: kill install
 
 reset: ## Stop and start a fresh install of the project
-reset: kill install
+reset: kill remove install
+
+remove:
+	-rm -rf vendor node_modules var
 
 start: ## Start the containers
 	$(DOCKER_COMPOSE) up -d --remove-orphans --no-recreate
@@ -45,8 +53,9 @@ clean: kill
 no-docker:
 	$(eval DOCKER_COMPOSE := \#)
 	$(eval EXEC_PHP := )
+	$(eval EXEC_JS := )
 
-.PHONY: build kill install reset start stop clean no-docker
+.PHONY: build kill install reset restart start stop clean no-docker remove
 
 ##
 ## -----
@@ -56,10 +65,10 @@ no-docker:
 
 db: ## Setup local database and load fake data
 db: .env.local vendor
-	-$(SYMFONY) doctrine:database:drop --if-exists --force
-	-$(SYMFONY) doctrine:database:create --if-not-exists
-	$(SYMFONY) d:m:m --no-interaction --allow-no-migration
-	$(SYMFONY) d:f:l --no-interaction --purge-with-truncate
+	-$(SYMFONY) --env=$(APP_ENV) doctrine:database:drop --if-exists --force
+	-$(SYMFONY) --env=$(APP_ENV) doctrine:database:create --if-not-exists
+	$(SYMFONY) --env=$(APP_ENV) d:m:m --no-interaction --allow-no-migration
+	$(SYMFONY) --env=$(APP_ENV) d:f:l --no-interaction --purge-with-truncate
 
 migration: ## Create a new doctrine migration
 migration: vendor
@@ -108,7 +117,7 @@ node_modules: yarn.lock
 		cp .env .env.local;\
 	fi
 
-.PHONY: db migration migrate db-update-schema db-validate-schema env keys
+.PHONY: db migration migrate db-update-schema db-validate-schema env
 
 ## 
 ## -----
@@ -116,11 +125,19 @@ node_modules: yarn.lock
 ## 
 ## 
 
-test: ## Run all tests in the tests/ folder
-test:
-	$(EXEC_PHP) bin/phpunit
+test-env:
+	$(eval APP_ENV := test)
 
-.PHONY: test
+unit: ## Run all unit tests
+unit: test-env db
+	$(PHPUNIT) --group unit
+
+test: ## Run all tests in the tests/ folder
+test: #install unit 
+test: unit 
+	$(PHPUNIT)
+
+.PHONY: unit test test-env
 
 .DEFAULT_GOAL := help
 help:

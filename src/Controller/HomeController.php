@@ -4,23 +4,25 @@ namespace App\Controller;
 
 use App\Service\HomeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @codeCoverageIgnore
+ */
 class HomeController extends AbstractController
 {
-    private HomeService $home_service;
+    private HomeService $homeService;
 
     public function __construct(
-        HomeService $home_service
+        HomeService $homeService
     ) {
-        $this->home_service = $home_service;
+        $this->homeService = $homeService;
     }
 
     #[Route("/", name: "homepage")]
-    public function home(Request $request): Response
+    public function homeAction(): Response
     {
-        return $this->home_service->home($request);
+        return $this->homeService->homeAction();
     }
 }

@@ -19,14 +19,22 @@ class HomeService
     /**
      * Displays the home page.
      *
-     * @param Request $_request The incoming http request
-     *
      * @return Response The html response.
      */
-    public function home(Request $_request): Response
+    public function homeAction(): Response
     {
-        $content = $this->twig->render('home/index.html.twig');
+        $page = $this->renderHomePage();
 
-        return new Response($content);
+        return new Response($page);
+    }
+
+    /**
+     * Returns the html content of the home page
+     * 
+     * @return string
+     */
+    public function renderHomePage(): string
+    {
+        return $this->twig->render('home/index.html.twig');
     }
 }

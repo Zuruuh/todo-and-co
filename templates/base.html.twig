@@ -18,7 +18,7 @@
         <div class="container">
             <div class="navbar-header">
                 <a class="navbar-brand" href="{{ path('homepage') }}">To Do List app</a>
-                <img src="{{ asset('build/images/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" />
+                <img src="{{ asset('build/images/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" class="navbar-logo" />
             </div>
         </div>
     </nav>
@@ -29,17 +29,25 @@
             {% if app.user %}
             <a href="{{ path('logout') }}" class="pull-right btn btn-danger">Se déconnecter</a>
             {% endif %}
-            {% if not app.user and 'login' != app.request.attributes.get('_route') %}
-            <a href="{{ path('login') }}" class="btn btn-success">Se connecter</a>
+            {% if app and not app.user and app.request and app.request.attributes %}
+                {% if 'login' != app.request.attributes.get('_route') %}
+                <a href="{{ path('login') }}" class="btn btn-success">Se connecter</a>
+                {% endif %}
             {% endif %}
         </div>
         <div class="row">
             <div class="col-md-12">
-                {% for type, message in app.session.FlashBag.all() %}
-                    <div class="alert alert-{{type}}" role="alert">
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
+                {% if app and app.session %}
+                    {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                        {% if messages is not empty %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ label }}" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 {% block header_title %}{% endblock %}
                 {% block header_img %}<img class="slide-image" src="{{ asset('build/images/todolist_homepage.jpg') }}" alt="todo list">{% endblock %}
             </div>
