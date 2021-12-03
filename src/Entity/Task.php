@@ -14,9 +14,6 @@ class Task
     #[ORM\GeneratedValue]
     private $id;
 
-    #[ORM\Column(type: 'datetime')]
-    private $createdAt;
-
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank(message: 'Vous devez saisir un titre.')]
     private $title;
@@ -27,6 +24,9 @@ class Task
 
     #[ORM\Column(type: 'boolean')]
     private $isDone;
+
+    #[ORM\Column(type: 'datetime')]
+    private $createdAt;
 
     public function __construct()
     {
@@ -63,14 +63,9 @@ class Task
         return $this;
     }
 
-    public function isDone(): bool
+    public function toggle(): self
     {
-        return $this->isDone;
-    }
-
-    public function toggle(bool $flag): self
-    {
-        $this->isDone = $flag;
+        $this->setIsDone(!$this->getIsDone());
 
         return $this;
     }
