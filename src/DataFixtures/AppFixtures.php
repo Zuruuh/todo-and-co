@@ -30,8 +30,17 @@ class AppFixtures extends Fixture
                 ->setContent($faker->text());
 
             $user = (new User())
-                ->setUsername($i . $faker->word())
+                ->setUsername(
+                    $i === 0
+                        ? 'admin'
+                        : ($i === 1
+                            ? 'user'
+                            : $i . $faker->word())
+                )
                 ->setEmail($i . $faker->email());
+            if ($i === 0) {
+                $user->addRole('ROLE_ADMIN');
+            }
 
             $password = $this->hasher->hashPassword($user, 'password');
             $user->setPassword($password);
