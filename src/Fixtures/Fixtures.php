@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\Fixtures;
 
 use App\Entity\Task;
 use App\Entity\User;
@@ -12,7 +12,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 /**
  * @codeCoverageIgnore
  */
-class AppFixtures extends Fixture
+class Fixtures extends Fixture
 {
     private UserPasswordHasherInterface $hasher;
 
@@ -25,9 +25,6 @@ class AppFixtures extends Fixture
         $faker = Faker\Factory::create();
 
         for ($i = 0; $i < 50; ++$i) {
-            $task = (new Task())
-                ->setTitle($faker->word())
-                ->setContent($faker->text());
 
             $user = (new User())
                 ->setUsername(
@@ -44,9 +41,16 @@ class AppFixtures extends Fixture
 
             $password = $this->hasher->hashPassword($user, 'password');
             $user->setPassword($password);
+            for ($j = 0; $j < 10; ++$j) {
+                $task = (new Task())
+                    ->setTitle($faker->word())
+                    ->setContent($faker->text());
+                //->setAuthor($user);
+
+                $em->persist($task);
+            }
 
             $em->persist($user);
-            $em->persist($task);
         }
 
         $em->flush();
