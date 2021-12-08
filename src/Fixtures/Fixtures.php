@@ -44,8 +44,8 @@ class Fixtures extends Fixture
             for ($j = 0; $j < 10; ++$j) {
                 $task = (new Task())
                     ->setTitle($faker->word())
-                    ->setContent($faker->text());
-                //->setAuthor($user);
+                    ->setContent($faker->text())
+                    ->setAuthor($user);
 
                 $em->persist($task);
             }
