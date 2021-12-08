@@ -8,15 +8,12 @@ use Twig\Environment;
 
 class SecurityService
 {
-    private Environment $twig;
-    private AuthenticationUtils $authUtils;
+    use ServiceTrait;
 
     public function __construct(
-        Environment $twig,
-        AuthenticationUtils $authUtils
+        private Environment $twig,
+        private AuthenticationUtils $authUtils
     ) {
-        $this->twig = $twig;
-        $this->authUtils = $authUtils;
     }
     /**
      * @codeCoverageIgnore
@@ -29,11 +26,9 @@ class SecurityService
         $error = $this->authUtils->getLastAuthenticationError();
         $lastUsername = $this->authUtils->getLastUsername();
 
-        $content = $this->twig->render('security/login.html.twig', [
+        return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error'         => $error,
         ]);
-
-        return new Response($content);
     }
 }

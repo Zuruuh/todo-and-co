@@ -4,45 +4,17 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Form\UserType;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Twig\Environment;
+use App\Service\ServiceTrait;
 
 class UserService
 {
-    private Environment $twig;
-    private UserRepository $userRepo;
-    private FormFactoryInterface $form;
-    private EntityManagerInterface $em;
-    private FlashBag $flashes;
-    private UrlGeneratorInterface $router;
-    private UserPasswordHasherInterface $hasher;
+    use ServiceTrait;
 
-    public function __construct(
-        Environment $twig,
-        UserRepository $userRepo,
-        FormFactoryInterface $form,
-        EntityManagerInterface $em,
-        SessionInterface $session,
-        UrlGeneratorInterface $router,
-        UserPasswordHasherInterface $hasher
-    ) {
-        $this->twig = $twig;
-        $this->userRepo = $userRepo;
-        $this->form = $form;
-        $this->em = $em;
-        $this->flashes = $session->getBag('flashes');
-        $this->router = $router;
-        $this->hasher = $hasher;
-    }
+    public string $ENTITY_CLASS = User::class;
+    public string $FORM_TYPE_CLASS = UserType::class;
 
     /*>>> Actions >>>*/
 
@@ -54,13 +26,9 @@ class UserService
      */
     public function listAction(): Response
     {
-        $users = $this->list();
-
-        $content = $this->twig->render('user/list.html.twig', [
-            'users' => $users,
+        return $this->render('user/list.html.twig', [
+            'users' => $this->list(),
         ]);
-
-        return new Response($content);
     }
 
     /**
@@ -73,17 +41,19 @@ class UserService
      */
     public function createAction(Request $request): Response
     {
-        [$form, $user] = $this->generateForm($request);
+        $form = $this->generateForm($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            [$message, $url] = $this->save($user);
+        if ($form->form->isSubmitted() && $form->form->isValid()) {
+            $this->save($form->entity);
+            $message = 'Cet utilisateur a bien été crée.';
             $this->flashes->add('success', $message);
 
-            return new RedirectResponse($url);
+            return $this->redirect('user_list');
         }
-        $page = $this->twig->render('user/create.html.twig', ['form' => $form->createView()]);
 
-        return new Response($page);
+        return $this->render('user/create.html.twig', [
+            'form' => $form->form->createView()
+        ]);
     }
 
 
@@ -98,16 +68,17 @@ class UserService
      */
     public function editAction(User $user, Request $request): Response
     {
-        [$form, $user] = $this->generateForm($request);
+        $form = $this->generateForm($request, $user);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            [$message, $url] = $this->update($user);
+        if ($form->form->isSubmitted() && $form->form->isValid()) {
+            $this->update($user);
+            $message = "L'utilisateur a bien été modifié";
             $this->flashes->add('success', $message);
 
-            return new RedirectResponse($url);
+            return $this->redirect('user_list');
         }
 
-        return $this->twig->render('user/edit.html.twig', ['form' => $form->createView(), 'user' => $user]);
+        return $this->twig->render('user/edit.html.twig', ['form' => $form->form->createView(), 'user' => $user]);
     }
 
     /*<<< Actions <<<*/
@@ -126,48 +97,25 @@ class UserService
     /**
      * @return string[]
      */
-    public function save(User $user): array
+    public function save(User $user): void
     {
         $password = $this->hasher->hashPassword($user, $user->getPassword());
         $user->setPassword($password);
 
         $this->em->persist($user);
         $this->em->flush();
-
-        $message = 'Cet utilisateur a bien été crée.';
-        $url = $this->router->generate('user_list');
-
-        return [$message, $url];
     }
 
     /**
      * @return string[]
      */
-    public function update(User $user): array
+    public function update(User $user): void
     {
         if ($this->hasher->needsRehash($user)) {
             $password = $this->hasher->hashPassword($user, $user->getPassword());
             $user->setPassword($password);
         }
+
         $this->em->flush();
-
-        $message = "L'utilisateur a bien été modifié";
-        $url = $this->router->generate('user_list');
-
-        return [$message, $url];
-    }
-
-    /**
-     * @return [FormInterface, User]
-     */
-    public function generateForm(?Request $request = null, ?User $user = null): array
-    {
-        $user = $user ?? new User();
-        $form = $this->form->create(UserType::class, $user);
-        if ($request) {
-            $form->handleRequest($request);
-        }
-
-        return [$form, $user];
     }
 }
