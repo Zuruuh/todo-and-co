@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use Symfony\Component\HttpFoundation\Response;
-use App\Service\ServiceTrait;
+use App\Trait\ServiceTrait;
 
 class HomeService
 {

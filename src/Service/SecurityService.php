@@ -5,6 +5,7 @@ namespace App\Service;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Twig\Environment;
+use App\Trait\ServiceTrait;
 
 class SecurityService
 {
