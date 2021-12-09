@@ -2,6 +2,7 @@
 
 namespace App\Tests\Entity;
 
+use App\Entity\Task;
 use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
@@ -80,5 +81,20 @@ class UserTest extends TestCase
         $this->assertContains(User::USER_ROLE, $roles);
         $this->assertContains(self::ROLE_1, $roles);
         $this->assertContains(self::ROLE_2, $roles);
+    }
+
+    public function testTasks(): void
+    {
+        $user = new User();
+
+        $this->assertEmpty($user->getTasks());
+        $task = new Task();
+
+        $this->assertNull($task->getAuthor());
+        $user->addTask($task);
+        $this->assertSame($user, $task->getAuthor());
+
+        $user->removeTask($task);
+        $this->assertNull($task->getAuthor());
     }
 }
