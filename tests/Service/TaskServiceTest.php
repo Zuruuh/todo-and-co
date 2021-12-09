@@ -3,16 +3,17 @@
 namespace App\Tests\Service;
 
 use App\Entity\Task;
+use App\Entity\User;
 use App\Repository\TaskRepository;
 use App\Service\TaskService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 class TaskServiceTest extends KernelTestCase
 {
-    private ?TaskService $taskService;
-    private ?TaskRepository $taskRepo;
+    private ?TaskService            $taskService;
+    private ?TaskRepository         $taskRepo;
+    private ?EntityManagerInterface $em;
 
     public const TASK_TITLE = "My task's title";
     public const TASK_CONTENT = "My task's content";
@@ -26,6 +27,7 @@ class TaskServiceTest extends KernelTestCase
 
         $this->taskService = $container->get(TaskService::class);
         $this->taskRepo = $container->get(TaskRepository::class);
+        $this->em = $container->get(EntityManagerInterface::class);
     }
 
     public function testList(): void
@@ -38,12 +40,18 @@ class TaskServiceTest extends KernelTestCase
 
     public function testSave(): void
     {
+        $user = (new User())
+            ->setEmail(uniqid() . 'test@mail.com')
+            ->setUsername(uniqid() . 'username')
+            ->setPassword(uniqid() . 'password');
+        $this->em->persist($user);
+
         $task = (new Task())
             ->setTitle(self::TASK_TITLE)
             ->setContent(self::TASK_CONTENT);
 
         $this->assertNull($task->getId());
-        $this->taskService->save($task);
+        $this->taskService->save($task, $user);
         $this->assertTrue((bool) $task->getId());
         $this->assertFalse($task->getIsDone());
     }
@@ -84,24 +92,25 @@ class TaskServiceTest extends KernelTestCase
         $this->taskService->save($task);
 
         $this->taskService->delete($task);
+        $existsSinceDeletionIsNotAuthorized = $this->taskRepo->findOneBy(['id' => $task->getId()]);
+        $this->assertSame($existsSinceDeletionIsNotAuthorized->getId(), $task->getId());
+
+        $author = new User();
+        $task->setAuthor($author);
+        $this->taskService->delete($task);
+        $existsSinceNotAuthor = $this->taskRepo->findOneBy(['id' => $task->getId()]);
+        $this->assertSame($existsSinceNotAuthor->getId(), $task->getId());
+
+        $this->taskService->delete($task, $author);
         $doesNotExistAnymore = $this->taskRepo->findOneBy(['id' => $task->getId()]);
-
         $this->assertNull($doesNotExistAnymore);
-    }
-
-    public function testFormGeneration(): void
-    {
-        [$form, $task] = $this->taskService->generateForm();
-        $this->assertInstanceOf(FormInterface::class, $form);
-        $this->assertInstanceOf(Task::class, $task);
-
-        [$form, $task] = $this->taskService->generateForm(new Request(), null);
-        $this->assertInstanceOf(FormInterface::class, $form);
-        $this->assertInstanceOf(Task::class, $task);
     }
 
     protected function tearDown(): void
     {
+        $this->em->close();
+        $this->em = null;
+        $this->taskRepo = null;
         $this->taskService = null;
     }
 }

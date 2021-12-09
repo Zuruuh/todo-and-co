@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Task;
+use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 class TaskTest extends TestCase
@@ -53,5 +54,16 @@ class TaskTest extends TestCase
         $task->setCreatedAt($date);
 
         $this->assertEquals($date, $task->getCreatedAt());
+    }
+
+    public function testAuthor(): void
+    {
+        $author = new User();
+        $task = new Task();
+
+        $this->assertNull($task->getAuthor());
+
+        $task->setAuthor($author);
+        $this->assertSame($author, $task->getAuthor());
     }
 }
