@@ -4,7 +4,6 @@ variables:
   TIMEOUT_SECONDS: 1
 
 before_script:
-  - apt install make
   - composer --version
   - composer install
 
@@ -76,13 +75,3 @@ twigcs:
   script:
     - twigcs ./templates
   allow_failure: true
-
-tests:
-  stage: Tests
-  script:
-    - make start
-    - make test
-  artifacts:
-    paths:
-      - var/artefacts/coverage/
-    expire_in: 1 week
