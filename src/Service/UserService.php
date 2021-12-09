@@ -4,10 +4,9 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Form\UserType;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use App\Service\ServiceTrait;
+use App\Trait\ServiceTrait;
 
 class UserService
 {
@@ -46,7 +45,7 @@ class UserService
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->save($form->entity);
             $message = 'Cet utilisateur a bien été crée.';
-            $this->flashes->add('success', $message);
+            $this->addFlash($message, 'success');
 
             return $this->redirect('user_list');
         }
@@ -73,7 +72,7 @@ class UserService
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->update($user);
             $message = "L'utilisateur a bien été modifié";
-            $this->flashes->add('success', $message);
+            $this->addFlash($message, 'success');
 
             return $this->redirect('user_list');
         }

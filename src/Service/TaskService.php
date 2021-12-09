@@ -5,17 +5,17 @@ namespace App\Service;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Form\TaskType;
-use App\Service\ServiceTrait;
+use App\Trait\ServiceTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 
 class TaskService
 {
+    use ServiceTrait;
+
     public string $ENTITY_CLASS = Task::class;
     public string $FORM_TYPE_CLASS = TaskType::class;
-
-    use ServiceTrait;
 
     /*>>> Actions >>>*/
 
@@ -48,7 +48,7 @@ class TaskService
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->save($form->entity);
             $message = 'La tâche a été bien été ajoutée.';
-            $this->flashes->add('success', $message);
+            $this->addFlash($message, 'success');
 
             return $this->redirect('task_list');
         }
@@ -72,7 +72,7 @@ class TaskService
         if ($form->isSubmitted() && $form->isValid()) {
             $this->update();
             $message = 'La tâche a bien été modifiée.';
-            $this->flashes->add('success', $message);
+            $this->addFlash($message, 'success');
 
             return $this->redirect('task_list');
         }
@@ -95,7 +95,7 @@ class TaskService
     {
         $this->toggle($task);
         $message = sprintf('La tâche "%s" a bien été marquée comme %s.', $task->getTitle(), $task->getIsDone() ? 'faite' : 'non faite');
-        $this->flashes->add('success', $message);
+        $this->addFlash($message, 'success');
 
         return $this->redirect('task_list');
     }
@@ -113,10 +113,10 @@ class TaskService
         $deleted = $this->delete($task);
         if ($deleted) {
             $message = "Cette tâche a bien été supprimée";
-            $this->flashes->add('success', $message);
+            $this->addFlash($message, 'success');
         } else {
             $message = "Vous n'êtes pas l'auteur de cette tâche !";
-            $this->flashes->add('warning', $message);
+            $this->addFlash($message, 'warning');
         }
 
         return $this->redirect('task_list');
@@ -141,9 +141,10 @@ class TaskService
      *
      * @return void
      */
-    public function save(Task $task): void
+    public function save(Task $task, ?User $author = null): void
     {
-        if ($user = $this->security->getUser()) {
+        $user = $author ?? $this->security->getUser();
+        if ($user) {
             $task->setAuthor($user);
         }
         $this->em->persist($task);
@@ -176,15 +177,16 @@ class TaskService
     /**
      * Deltes a task's in database (if authorized)
      *
-     * @param Task $task The task to delete.
+     * @param Task  $task The task to delete.
+     * @param ?User $user The user trying to delete the task. (Optionnal)
      *
      * @return bool
      */
-    public function delete(Task $task): bool
+    public function delete(Task $task, ?User $author = null): bool
     {
-        $user = $this->security->getUser();
-        $userIsAuthor = $task->getAuthor() && $task->getAuthor()->getUserIdentifier() === $user->getUserIdentifier();
-        $userIsAdmin = !$task->getAuthor() && in_array(User::ADMIN_ROLE, $user->getRoles());
+        $user = $author ?? $this->security->getUser();
+        $userIsAuthor = $task->getAuthor() && $user && $task->getAuthor()->getUserIdentifier() === $user->getUserIdentifier();
+        $userIsAdmin = !$task->getAuthor() && $user && in_array(User::ADMIN_ROLE, $user->getRoles());
 
         if ($userIsAuthor || $userIsAdmin) {
             $this->em->remove($task);
