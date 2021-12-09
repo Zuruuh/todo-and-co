@@ -2,19 +2,12 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Environment;
+use App\Trait\ServiceTrait;
 
 class HomeService
 {
-    private Environment $twig;
-
-    public function __construct(
-        Environment $twig,
-    ) {
-        $this->twig = $twig;
-    }
+    use ServiceTrait;
 
     /**
      * Displays the home page.
@@ -23,18 +16,6 @@ class HomeService
      */
     public function homeAction(): Response
     {
-        $page = $this->renderHomePage();
-
-        return new Response($page);
-    }
-
-    /**
-     * Returns the html content of the home page
-     * 
-     * @return string
-     */
-    public function renderHomePage(): string
-    {
-        return $this->twig->render('home/index.html.twig');
+        return $this->render('home/index.html.twig');
     }
 }

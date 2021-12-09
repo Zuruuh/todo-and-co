@@ -3,42 +3,19 @@
 namespace App\Service;
 
 use App\Entity\Task;
+use App\Entity\User;
 use App\Form\TaskType;
-use App\Repository\TaskRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use App\Trait\ServiceTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Twig\Environment;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+
 
 class TaskService
 {
-    private Environment $twig;
-    private TaskRepository $taskRepo;
-    private FormFactoryInterface $form;
-    private EntityManagerInterface $em;
-    private FlashBag $flashes;
-    private UrlGeneratorInterface $router;
+    use ServiceTrait;
 
-    public function __construct(
-        Environment $twig,
-        TaskRepository $taskRepo,
-        FormFactoryInterface $form,
-        EntityManagerInterface $em,
-        SessionInterface $session,
-        UrlGeneratorInterface $router,
-    ) {
-        $this->twig = $twig;
-        $this->taskRepo = $taskRepo;
-        $this->form = $form;
-        $this->em = $em;
-        $this->flashes = $session->getBag('flashes');
-        $this->router = $router;
-    }
+    public string $ENTITY_CLASS = Task::class;
+    public string $FORM_TYPE_CLASS = TaskType::class;
 
     /*>>> Actions >>>*/
 
@@ -52,12 +29,9 @@ class TaskService
     {
         $tasks = $this->list();
 
-        $content = $this->twig->render('task/list.html.twig', [
-            'tasks' => $tasks
-        ]);
-
-        return new Response($content);
+        return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
+
 
     /**
      * @codeCoverageIgnore
@@ -69,22 +43,22 @@ class TaskService
      */
     public function createAction(Request $request): Response
     {
-        [$form, $task] = $this->generateForm($request);
+        $form = $this->generateForm($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            [$message, $url] = $this->save($task);
-            $this->flashes->add('success', $message);
+        if ($form->form->isSubmitted() && $form->form->isValid()) {
+            $this->save($form->entity);
+            $message = 'La tâche a été bien été ajoutée.';
+            $this->addFlash($message, 'success');
 
-            return new RedirectResponse($url);
+            return $this->redirect('task_list');
         }
-        $page = $this->twig->render('task/create.html.twig', ['form' => $form->createView()]);
 
-        return new Response($page);
+        return $this->render('task/create.html.twig', ['form' => $form->form->createView()]);
     }
 
     /**
      * @codeCoverageIgnore
-     * Edits a task.
+     * Updates a task.
      *
      * @param Task    $task    The task to modify
      * @param Request $request The incoming http request
@@ -93,16 +67,17 @@ class TaskService
      */
     public function editAction(Task $task, Request $request): Response
     {
-        [$form, $task] = $this->generateForm($request, $task);
+        $form = $this->generateForm($request, $task)->form;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            [$message, $url] = $this->update();
-            $this->flashes->add('success', $message);
+            $this->update();
+            $message = 'La tâche a bien été modifiée.';
+            $this->addFlash($message, 'success');
 
-            return new RedirectResponse($url);
+            return $this->redirect('task_list');
         }
 
-        return $this->twig->render('task/edit.html.twig', [
+        return $this->render('task/edit.html.twig', [
             'form' => $form->createView(),
             'task' => $task,
         ]);
@@ -113,51 +88,45 @@ class TaskService
      * Toggles a task's state.
      *
      * @param Task    $task     The task to toggle
+     *
      * @return Response The html response.
      */
     public function toggleAction(Task $task,): Response
     {
-        [$message, $url] = $this->toggle($task);
-        $this->flashes->add('success', $message);
+        $this->toggle($task);
+        $message = sprintf('La tâche "%s" a bien été marquée comme %s.', $task->getTitle(), $task->getIsDone() ? 'faite' : 'non faite');
+        $this->addFlash($message, 'success');
 
-        return new RedirectResponse($url);
+        return $this->redirect('task_list');
     }
 
     /**
      * @codeCoverageIgnore
      * Deletes a task.
      *
-     * @param Task    $task     The task to delete
+     * @param Task $task The task to delete.
+     *
      * @return Response The html response.
      */
     public function deleteAction(Task $task,): Response
     {
-        [$message, $url] = $this->delete($task);
-        $this->flashes->add('success', $message);
+        $deleted = $this->delete($task);
+        if ($deleted) {
+            $message = "Cette tâche a bien été supprimée";
+            $this->addFlash($message, 'success');
+        } else {
+            $message = "Vous n'êtes pas l'auteur de cette tâche !";
+            $this->addFlash($message, 'warning');
+        }
 
-        return new RedirectResponse($url);
+        return $this->redirect('task_list');
     }
 
     /*<<< Actions <<<*/
-    /*>>> Helpers >>>*/
 
     /**
-     * @return [FormInterface,Task]
-     */
-    public function generateForm(?Request $request = null, ?Task $task = null): array
-    {
-        $task = $task ?? new Task();
-        $form = $this->form->create(TaskType::class, $task);
-        if ($request) {
-            $form->handleRequest($request);
-        }
-
-        return [$form, $task];
-    }
-
-    /*<<< Helpers <<<*/
-
-    /**
+     * Fetches all tasks from database.
+     * 
      * @return Task[]
      */
     public function list(): array
@@ -166,57 +135,64 @@ class TaskService
     }
 
     /**
-     * @return string[]
+     * Saves a task to database.
+     *
+     * @param Task $task The task to save. 
+     *
+     * @return void
      */
-    public function save(Task $task): array
+    public function save(Task $task, ?User $author = null): void
     {
+        $user = $author ?? $this->security->getUser();
+        if ($user) {
+            $task->setAuthor($user);
+        }
         $this->em->persist($task);
         $this->em->flush();
-
-        $message = 'La tâche a été bien été ajoutée.';
-        $url = $this->router->generate('task_list');
-
-        return [$message, $url];
     }
 
     /**
-     * @return string[]
+     * Updates a task in database.
+     *
+     * @return void
      */
-    public function update(): array
+    public function update(): void
     {
         $this->em->flush();
-
-        $message = 'La tâche a bien été modifiée.';
-        $url = $this->router->generate('task_list');
-
-        return [$message, $url];
     }
 
     /**
-     * @return string[]
+     * Toggles a task's state in database.
+     *
+     * @param Task $task The task to toggle.
+     *
+     * @return void
      */
-    public function toggle(Task $task): array
+    public function toggle(Task $task): void
     {
         $task->toggle();
         $this->em->flush();
-
-        $message = sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $task->getIsDone() ? 'faite' : 'non faite');
-        $url = $this->router->generate('task_list');
-
-        return [$message, $url];
     }
 
     /**
-     * @return string[]
+     * Deltes a task's in database (if authorized)
+     *
+     * @param Task  $task The task to delete.
+     * @param ?User $user The user trying to delete the task. (Optionnal)
+     *
+     * @return bool
      */
-    public function delete(Task $task): array
+    public function delete(Task $task, ?User $author = null): bool
     {
-        $this->em->remove($task);
-        $this->em->flush();
+        $user = $author ?? $this->security->getUser();
+        $userIsAuthor = $task->getAuthor() && $user && $task->getAuthor()->getUserIdentifier() === $user->getUserIdentifier();
+        $userIsAdmin = !$task->getAuthor() && $user && in_array(User::ADMIN_ROLE, $user->getRoles());
 
-        $message = 'La tâche a bien été supprimée.';
-        $url = $this->router->generate('task_list');
+        if ($userIsAuthor || $userIsAdmin) {
+            $this->em->remove($task);
+            $this->em->flush();
+        }
 
-        return [$message, $url];
+        return (bool) ($userIsAuthor || $userIsAdmin);
     }
 }

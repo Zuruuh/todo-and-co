@@ -17,17 +17,6 @@ class HomeServiceTest extends KernelTestCase
         $this->homeService = static::getContainer()->get(HomeService::class);
     }
 
-    public function testHomePageRendering(): void
-    {
-        $page = $this->homeService->renderHomePage();
-
-        $this->assertIsString($page);
-
-        $this->assertStringContainsString('tasks-create-button', $page);
-        $this->assertStringContainsString('tasks-todo-button', $page);
-        $this->assertStringContainsString('tasks-done-button', $page);
-    }
-
     public function testHomePageAction(): void
     {
         $response = $this->homeService->homeAction();
