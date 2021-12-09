@@ -4,7 +4,7 @@ variables:
   TIMEOUT_SECONDS: 1
 
 before_script:
-  - apt install build-essential
+  - apt install make
   - composer --version
   - composer install
 
