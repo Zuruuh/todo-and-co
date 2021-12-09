@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Trait;
 
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
@@ -10,10 +10,10 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -21,8 +21,6 @@ trait ServiceTrait
 {
     private string $DEFAULT_FORM_TYPE_CLASS = "No form type class set";
     private string $DEFAULT_ENTITY_CLASS = "No entity class set";
-
-    private FlashBag $flashes;
 
     public function __construct(
         private Environment $twig,
@@ -33,11 +31,9 @@ trait ServiceTrait
         private UserPasswordHasherInterface $hasher,
         private UrlGeneratorInterface $router,
         private Security $security,
-        SessionInterface $session,
+        private RequestStack $requestStack,
 
     ) {
-        $this->flashes = $session->getBag('flashes');
-
         $this->FORM_TYPE_CLASS = $this->FORM_TYPE_CLASS ?? $this->DEFAULT_FORM_TYPE_CLASS;
         $this->ENTITY_CLASS = $this->ENTITY_CLASS ?? $this->DEFAULT_ENTITY_CLASS;
     }
@@ -81,7 +77,7 @@ trait ServiceTrait
      *
      * @return mixed
      */
-    public function isEntityClassDefined(?string $entityClass): mixed
+    public function isEntityClassDefined(?string $entityClass = null): mixed
     {
         $entityClassNotSet = $this->ENTITY_CLASS === $this->DEFAULT_ENTITY_CLASS;
 
@@ -103,7 +99,7 @@ trait ServiceTrait
      *
      * @return string
      */
-    public function isFormTypeClassDefined(?string $formTypeClass): string
+    public function isFormTypeClassDefined(?string $formTypeClass = null): string
     {
         if (!$formTypeClass) {
             if ($this->FORM_TYPE_CLASS === $this->DEFAULT_FORM_TYPE_CLASS) {
@@ -116,6 +112,8 @@ trait ServiceTrait
 
 
     /**
+     * Generates a form interface and an entity.
+     *
      * @return {form: FormInterface, entity: mixed}
      */
     public function generateForm(
@@ -134,5 +132,23 @@ trait ServiceTrait
         }
 
         return (object) ['form' => $form, 'entity' => $entity];
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * Adds a flash to flashbag
+     *
+     * @param string $message The message to add.
+     * @param string $type    The type of the message (e.g: 'succes', 'warning', etc...)
+     *
+     * @return FlashBagInterface
+     */
+    public function addFlash(string $message, string $type = 'success'): FlashBagInterface
+    {
+        /** @var FlashBagInterface */
+        $flashbag = $this->requestStack->getSession()->getBag('flashes');
+        $flashbag->add($type, $message);
+
+        return $flashbag;
     }
 }
