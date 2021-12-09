@@ -69,6 +69,7 @@ class UserServiceTest extends KernelTestCase
 
         $user
             ->setUsername($newUsername)
+            ->setPassword(self::USER_PASSWORD)
             ->setEmail($newEmail);
         $this->userService->update($user);
 
@@ -77,18 +78,6 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertSame($newUsername, $user->getUserIdentifier());
         $this->assertSame($newEmail, $user->getEmail());
-    }
-
-
-    public function testFormGeneration(): void
-    {
-        [$form, $user] = $this->userService->generateForm();
-        $this->assertInstanceOf(FormInterface::class, $form);
-        $this->assertInstanceOf(User::class, $user);
-
-        [$form, $user] = $this->userService->generateForm(new Request(), null);
-        $this->assertInstanceOf(FormInterface::class, $form);
-        $this->assertInstanceOf(User::class, $user);
     }
 
     protected function tearDown(): void
