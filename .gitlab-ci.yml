@@ -4,7 +4,7 @@ variables:
   TIMEOUT_SECONDS: 1
 
 before_script:
-  - sudo apt install build-essential
+  - apt install build-essential
   - composer --version
   - composer install
 
