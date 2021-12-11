@@ -25,13 +25,12 @@ class TaskService
      *
      * @return Response The html response.
      */
-    public function listAction(): Response
+    public function listAction(?bool $done = null): Response
     {
-        $tasks = $this->list();
+        $tasks = $done === null ? $this->listAll() : $this->listTasks($done);
 
         return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
-
 
     /**
      * @codeCoverageIgnore
@@ -91,7 +90,7 @@ class TaskService
      *
      * @return Response The html response.
      */
-    public function toggleAction(Task $task,): Response
+    public function toggleAction(Task $task): Response
     {
         $this->toggle($task);
         $message = sprintf('La tâche "%s" a bien été marquée comme %s.', $task->getTitle(), $task->getIsDone() ? 'faite' : 'non faite');
@@ -129,9 +128,19 @@ class TaskService
      * 
      * @return Task[]
      */
-    public function list(): array
+    public function listAll(): array
     {
         return $this->taskRepo->findAll();
+    }
+
+    /**
+     * Fetches all tasks todo from database.
+     * 
+     * @return Task[]
+     */
+    public function listTasks(bool $done): array
+    {
+        return $this->taskRepo->findBy(['isDone' => $done]);
     }
 
     /**

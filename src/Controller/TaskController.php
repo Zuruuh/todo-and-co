@@ -22,10 +22,22 @@ class TaskController extends AbstractController
         $this->taskService = $taskService;
     }
 
-    #[Route("/tasks", name: "task_list")]
-    public function listAction(Request $request): Response
+    #[Route("/tasks/list", name: "task_list")]
+    public function listAllAction(): Response
     {
-        return $this->taskService->listAction($request);
+        return $this->taskService->listAction();
+    }
+
+    #[Route("/tasks/list/todo", name: "task_list_todo")]
+    public function listTodoAction(): Response
+    {
+        return $this->taskService->listAction(false);
+    }
+
+    #[Route("/tasks/list/done", name: "task_list_done")]
+    public function listDoneAction(): Response
+    {
+        return $this->taskService->listAction(true);
     }
 
     #[Route("/tasks/create", name: "task_create")]
