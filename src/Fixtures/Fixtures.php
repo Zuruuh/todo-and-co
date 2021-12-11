@@ -45,6 +45,7 @@ class Fixtures extends Fixture
                 $task = (new Task())
                     ->setTitle($faker->word())
                     ->setContent($faker->text())
+                    ->setIsDone($faker->boolean())
                     ->setAuthor($user);
 
                 $em->persist($task);
