@@ -32,10 +32,22 @@ class TaskServiceTest extends KernelTestCase
 
     public function testList(): void
     {
-        $list = $this->taskService->list();
+        $tasks = $this->taskService->listAll();
 
-        $this->assertIsArray($list);
-        $this->assertContainsOnlyInstancesOf(Task::class, $list);
+        $this->assertIsArray($tasks);
+        $this->assertContainsOnlyInstancesOf(Task::class, $tasks);
+
+        $tasksTodo = $this->taskService->listTasks(false);
+        $this->assertIsArray($tasksTodo);
+        $this->assertContainsOnlyInstancesOf(Task::class, $tasksTodo);
+
+        $this->assertFalse($tasksTodo[0]->getIsDone());
+
+        $tasksDone = $this->taskService->listTasks(true);
+        $this->assertIsArray($tasksDone);
+        $this->assertContainsOnlyInstancesOf(Task::class, $tasksDone);
+
+        $this->assertTrue($tasksDone[0]->getIsDone());
     }
 
     public function testSave(): void
