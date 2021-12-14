@@ -67,7 +67,7 @@ class UserService
      */
     public function editAction(User $user, Request $request): Response
     {
-        $form = $this->generateForm($request, $user);
+        $form = $this->generateForm($request, $user, formOptions: ['displayPasswordField' => false]);
 
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->update($user);
@@ -77,7 +77,7 @@ class UserService
             return $this->redirect('user_list');
         }
 
-        return $this->twig->render('user/edit.html.twig', ['form' => $form->form->createView(), 'user' => $user]);
+        return $this->render('user/edit.html.twig', ['form' => $form->form->createView(), 'user' => $user]);
     }
 
     /*<<< Actions <<<*/

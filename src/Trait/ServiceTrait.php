@@ -120,13 +120,14 @@ trait ServiceTrait
         ?Request $request = null,
         mixed $entity = null,
         ?string $formTypeClass = null,
-        ?string $entityClass = null
+        ?string $entityClass = null,
+        array $formOptions = []
     ): \stdClass {
         $entityClass   = $this->isEntityClassDefined($entityClass);
         $formTypeClass = $this->isFormTypeClassDefined($formTypeClass);
 
         $entity = $entity ?? new $entityClass();
-        $form = $this->form->create($formTypeClass, $entity);
+        $form = $this->form->create($formTypeClass, $entity, $formOptions);
         if ($request) {
             $form->handleRequest($request);
         }
