@@ -42,7 +42,9 @@
     "twig/twig": "^3.3"
   },
   "require-dev": {
+    "behat/mink": "^1.9",
     "dbrekelmans/bdi": "^1.0",
+    "dmore/chrome-mink-driver": "^2.8",
     "fakerphp/faker": "^1.16",
     "phpunit/phpunit": "^9.5",
     "symfony/debug-bundle": "5.4.*",

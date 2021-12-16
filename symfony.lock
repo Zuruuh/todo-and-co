@@ -1,6 +1,12 @@
 {
+    "behat/mink": {
+        "version": "v1.9.0"
+    },
     "dbrekelmans/bdi": {
         "version": "1.0"
+    },
+    "dmore/chrome-mink-driver": {
+        "version": "2.8.0"
     },
     "doctrine/annotations": {
         "version": "1.13",
@@ -275,6 +281,9 @@
         "files": [
             "bin/console"
         ]
+    },
+    "symfony/css-selector": {
+        "version": "v5.4.0"
     },
     "symfony/debug-bundle": {
         "version": "5.3",
@@ -623,6 +632,9 @@
     },
     "symfony/yaml": {
         "version": "v5.3.6"
+    },
+    "textalk/websocket": {
+        "version": "1.5.5"
     },
     "theseer/tokenizer": {
         "version": "1.2.1"
