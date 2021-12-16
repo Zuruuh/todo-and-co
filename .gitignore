@@ -11,7 +11,8 @@
 .phpunit
 .phpunit.result.cache
 /phpunit.xml
-dist/
+/dist/
+/coverage/
 ###< symfony/phpunit-bridge ###
 
 ###> symfony/webpack-encore-bundle ###
@@ -23,7 +24,7 @@ yarn-error.log
 
 ###> dbrekelmans/bdi ###
 *driver
-drivers
-web-drivers
-webdrivers
+/drivers
+/web-drivers
+/webdrivers
 ###< dbrekelmans/bdi ###
