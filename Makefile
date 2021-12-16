@@ -14,7 +14,7 @@ EXEC_PHP        = $(DOCKER_COMPOSE) exec -T php /entrypoint
 EXEC_JS         = $(DOCKER_COMPOSE) exec -T node /entrypoint
 
 SYMFONY         = $(EXEC_PHP) bin/console
-PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html dist
+PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html coverage
 COMPOSER        = $(EXEC_PHP) composer
 YARN        	= $(EXEC_JS) yarn
 
@@ -128,16 +128,21 @@ node_modules: yarn.lock
 test-env:
 	$(eval APP_ENV := test)
 
+test-init: test-env db
+
 unit: ## Run all unit tests
-unit: test-env db
+unit: test-init
 	$(PHPUNIT) --group unit
 
+e2e: ## Run all end-to-end tests
+	$(PHPUNIT) --group e2e
+
 test: ## Run all tests in the tests/ folder
-test: #install unit 
-test: unit 
+test: test-init
 	$(PHPUNIT)
 
-.PHONY: unit test test-env
+
+.PHONY: unit test test-init test-env
 
 .DEFAULT_GOAL := help
 help:
