@@ -2,10 +2,14 @@
 
 namespace App\Tests\Service;
 
-use App\Service\HomeService;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\HttpFoundation\Response;
+use App\Service\HomeService,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * @group unit
+ * @group service
+ */
 class HomeServiceTest extends KernelTestCase
 {
     private ?HomeService $homeService;

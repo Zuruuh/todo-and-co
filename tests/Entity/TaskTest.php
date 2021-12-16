@@ -2,10 +2,14 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\Task;
-use App\Entity\User;
-use PHPUnit\Framework\TestCase;
+use App\Entity\Task,
+    App\Entity\User,
+    PHPUnit\Framework\TestCase;
 
+/**
+ * @group unit
+ * @group entity
+ */
 class TaskTest extends TestCase
 {
     public const TITLE   = 'Task Title';

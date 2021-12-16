@@ -2,9 +2,13 @@
 
 namespace App\Tests\Service;
 
-use App\Service\SecurityService;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use App\Service\SecurityService,
+    Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * @group unit
+ * @group service
+ */
 class SecurityServiceTest extends KernelTestCase
 {
     private ?SecurityService $securityService;
