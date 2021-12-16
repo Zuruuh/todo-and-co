@@ -49,9 +49,25 @@ services:
     volumes:
       - ./:/srv/
 
+  chrome:
+    image: zenika/alpine-chrome:89
+    command: "chromium-browser \
+      --headless \
+      --disable-gpu \
+      --no-sandbox \
+      --disable-software-rasterizer \
+      --disable-dev-shm-usage \
+      --remote-debugging-address=0.0.0.0 \
+      --remote-debugging-port=9222"
+    cap_add:
+      - "SYS_ADMIN"
+    expose:
+      - 9222
+
 networks:
   default:
     name: local
+    driver: bridge
 
 volumes:
   database: ~
