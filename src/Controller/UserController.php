@@ -2,24 +2,21 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Service\UserService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\User,
+    App\Service\UserService,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Bundle\FrameworkBundle\Controller\AbstractController,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @codeCoverageIgnore
  */
 class UserController extends AbstractController
 {
-    private UserService $userService;
-
     public function __construct(
-        UserService $userService
+        private UserService $userService
     ) {
-        $this->userService = $userService;
     }
 
     #[Route("/users", name: "user_list")]

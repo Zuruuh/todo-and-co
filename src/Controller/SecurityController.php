@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
-use App\Service\SecurityService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Service\SecurityService,
+    Symfony\Bundle\FrameworkBundle\Controller\AbstractController,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @codeCoverageIgnore
@@ -13,12 +13,9 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(name: 'security_')]
 class SecurityController extends AbstractController
 {
-    private SecurityService $securityService;
-
     public function __construct(
-        SecurityService $securityService
+        private SecurityService $securityService
     ) {
-        $this->securityService = $securityService;
     }
 
     // https://symfony.com/doc/current/best_practices.html#use-a-single-action-to-render-and-process-the-form

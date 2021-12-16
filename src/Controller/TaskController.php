@@ -2,24 +2,21 @@
 
 namespace App\Controller;
 
-use App\Entity\Task;
-use App\Service\TaskService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Task,
+    App\Service\TaskService,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Bundle\FrameworkBundle\Controller\AbstractController,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @codeCoverageIgnore
  */
 class TaskController extends AbstractController
 {
-    private TaskService $taskService;
-
     public function __construct(
-        TaskService $taskService
+        private TaskService $taskService
     ) {
-        $this->taskService = $taskService;
     }
 
     #[Route("/tasks/list", name: "task_list")]
