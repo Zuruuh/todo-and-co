@@ -2,20 +2,25 @@
 
 namespace App\Service;
 
-use App\Entity\Task;
-use App\Entity\User;
-use App\Form\TaskType;
-use App\Trait\ServiceTrait;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-
+use App\Entity\Task,
+    App\Entity\User,
+    App\Form\TaskType,
+    App\Repository\TaskRepository,
+    Doctrine\ORM\EntityManagerInterface,
+    Symfony\Component\Security\Core\Security,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Component\HttpFoundation\Response;
 
 class TaskService
 {
-    use ServiceTrait;
-
-    public string $ENTITY_CLASS = Task::class;
-    public string $FORM_TYPE_CLASS = TaskType::class;
+    public function __construct(
+        private UtilsService $utils,
+        private Security $security,
+        private EntityManagerInterface $em,
+        private TaskRepository $taskRepo
+    ) {
+        $this->utils->setupFormDefaults(TaskType::class, Task::class);
+    }
 
     /*>>> Actions >>>*/
 
@@ -29,7 +34,7 @@ class TaskService
     {
         $tasks = $done === null ? $this->listAll() : $this->listTasks($done);
 
-        return $this->render('task/list.html.twig', ['tasks' => $tasks]);
+        return $this->utils->render('task/list.html.twig', ['tasks' => $tasks]);
     }
 
     /**
@@ -42,17 +47,17 @@ class TaskService
      */
     public function createAction(Request $request): Response
     {
-        $form = $this->generateForm($request);
+        $form = $this->utils->generateForm($request);
 
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->save($form->entity);
             $message = 'La tâche a été bien été ajoutée.';
-            $this->addFlash($message, 'success');
+            $this->utils->addFlash($message, 'success');
 
-            return $this->redirect('task_list');
+            return $this->utils->redirect('task_list');
         }
 
-        return $this->render('task/create.html.twig', ['form' => $form->form->createView()]);
+        return $this->utils->render('task/create.html.twig', ['form' => $form->form->createView()]);
     }
 
     /**
@@ -66,17 +71,17 @@ class TaskService
      */
     public function editAction(Task $task, Request $request): Response
     {
-        $form = $this->generateForm($request, $task)->form;
+        $form = $this->utils->generateForm($request, $task)->form;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->update();
             $message = 'La tâche a bien été modifiée.';
-            $this->addFlash($message, 'success');
+            $this->utils->addFlash($message, 'success');
 
-            return $this->redirect('task_list');
+            return $this->utils->redirect('task_list');
         }
 
-        return $this->render('task/edit.html.twig', [
+        return $this->utils->render('task/edit.html.twig', [
             'form' => $form->createView(),
             'task' => $task,
         ]);
@@ -94,9 +99,9 @@ class TaskService
     {
         $this->toggle($task);
         $message = sprintf('La tâche "%s" a bien été marquée comme %s.', $task->getTitle(), $task->getIsDone() ? 'faite' : 'non faite');
-        $this->addFlash($message, 'success');
+        $this->utils->addFlash($message, 'success');
 
-        return $this->redirect('task_list');
+        return $this->utils->redirect('task_list');
     }
 
     /**
@@ -112,13 +117,13 @@ class TaskService
         $deleted = $this->delete($task);
         if ($deleted) {
             $message = "Cette tâche a bien été supprimée";
-            $this->addFlash($message, 'success');
+            $this->utils->addFlash($message, 'success');
         } else {
             $message = "Vous n'êtes pas l'auteur de cette tâche !";
-            $this->addFlash($message, 'warning');
+            $this->utils->addFlash($message, 'warning');
         }
 
-        return $this->redirect('task_list');
+        return $this->utils->redirect('task_list');
     }
 
     /*<<< Actions <<<*/
