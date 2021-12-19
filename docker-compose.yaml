@@ -9,8 +9,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-symfony}
     volumes:
       - database:/var/lib/postgresql:rw
-    ports:
-      - "5432"
+    expose:
+      - 5432
 
   nginx:
     image: nginx:1-alpine
@@ -27,6 +27,8 @@ services:
     build:
       context: ./docker/php
     working_dir: /srv
+    depends_on:
+      - database
     volumes:
       - ./:/srv/:rw
       - ./docker/php/config/php.ini:/usr/local/etc/php/php.ini:ro
