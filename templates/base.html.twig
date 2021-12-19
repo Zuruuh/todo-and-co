@@ -14,6 +14,60 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
-    </body>
-</html>
+    <nav class="navbar navbar-light navbar-fixed-top" style="background-color: #e3f2fd;" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{{ path('homepage') }}">To Do List app</a>
+                <img src="{{ asset('build/images/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" class="navbar-logo" />
+            </div>
+        </div>
+    </nav>
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <a href="{{ path('user_create') }}" id="user-create" class="btn btn-primary">Créer un utilisateur</a>
+            {% if app.user %}
+            <a href="{{ path('security_logout') }}" id="auth-logout" class="pull-right btn btn-danger">Se déconnecter</a>
+            {% endif %}
+            {% if app and not app.user and app.request and app.request.attributes %}
+                {% if 'login' != app.request.attributes.get('_route') %}
+                <a href="{{ path('security_login') }}" id="auth-login" class="btn btn-success">Se connecter</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {% if app and app.session %}
+                    {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                        {% if messages is not empty %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ label }}" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% block header_title %}{% endblock %}
+                {% block header_img %}<img class="slide-image" src="{{ asset('build/images/todolist_homepage.jpg') }}" alt="todo list">{% endblock %}
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+    <div class="container">
+        <hr>
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="pull-right">Copyright &copy; OpenClassrooms</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
