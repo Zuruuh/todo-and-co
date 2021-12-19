@@ -1,76 +1,19 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <title>{% block title %}To Do List app{% endblock %}</title>
-
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
         {% block stylesheets %}
-        {{ encore_entry_link_tags('app') }}
+            {{ encore_entry_link_tags('app') }}
         {% endblock %}
-        
-    </head>
 
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
     <body>
-    <nav class="navbar navbar-light navbar-fixed-top" style="background-color: #e3f2fd;" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="{{ path('homepage') }}">To Do List app</a>
-                <img src="{{ asset('build/images/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" class="navbar-logo" />
-            </div>
-        </div>
-    </nav>
-    <!-- Page Content -->
-    <div class="container">
-        <div class="row">
-            <a href="{{ path('user_create') }}" class="btn btn-primary">Créer un utilisateur</a>
-            {% if app.user %}
-            <a href="{{ path('security_logout') }}" class="pull-right btn btn-danger">Se déconnecter</a>
-            {% endif %}
-            {% if app and not app.user and app.request and app.request.attributes %}
-                {% if 'login' != app.request.attributes.get('_route') %}
-                <a href="{{ path('security_login') }}" class="btn btn-success">Se connecter</a>
-                {% endif %}
-            {% endif %}
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                {% if app and app.session %}
-                    {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
-                        {% if messages is not empty %}
-                            {% for message in messages %}
-                            <div class="alert alert-{{ label }}" role="alert">
-                                {{ message }}
-                            </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-                {% block header_title %}{% endblock %}
-                {% block header_img %}<img class="slide-image" src="{{ asset('build/images/todolist_homepage.jpg') }}" alt="todo list">{% endblock %}
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <div class="col-md-12">
-                {% block body %}{% endblock %}
-            </div>
-        </div>
-    </div>
-    <!-- /.container -->
-    <div class="container">
-        <hr>
-        <footer>
-            <div class="row">
-                <div class="col-lg-12">
-                    <p class="pull-right">Copyright &copy; OpenClassrooms</p>
-                </div>
-            </div>
-        </footer>
-    </div>
-    {% block javascripts %}
-    {{ encore_entry_script_tags('app') }}
-    {% endblock %}
-</body>
+        {% block body %}{% endblock %}
+    </body>
+</html>
