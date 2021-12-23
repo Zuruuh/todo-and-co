@@ -76,6 +76,8 @@ services:
 
   redis:
     image: redis:6.2.6-alpine
+    volumes:
+      - ./var/redis/:/data:rw
     expose:
       - 6379
 
