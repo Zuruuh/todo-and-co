@@ -5,4 +5,3 @@ snc_redis:
       type: predis
       alias: session
       dsn: "%env(REDIS_URL)%"
-      logging: "%kernel.debug%"

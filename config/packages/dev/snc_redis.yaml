@@ -1,0 +1,4 @@
+snc_redis:
+  clients:
+    session:
+      logging: "%kernel.debug%"
