@@ -1,6 +1,33 @@
 version: "3.7"
 
 services:
+  blackfire:
+    image: blackfire/blackfire:v2
+    network_mode: "host"
+    depends_on:
+      - nginx
+    environment:
+      BLACKFIRE_DISABLE_LEGACY_PORT: 1
+      BLACKFIRE_SERVER_ID: ~
+      BLACKFIRE_SERVER_TOKEN: ~
+      BLACKFIRE_CLIENT_ID: ~
+      BLACKFIRE_CLIENT_TOKEN: ~
+
+  chrome:
+    image: zenika/alpine-chrome:89
+    command: "chromium-browser \
+      --headless \
+      --disable-gpu \
+      --no-sandbox \
+      --disable-software-rasterizer \
+      --disable-dev-shm-usage \
+      --remote-debugging-address=0.0.0.0 \
+      --remote-debugging-port=9222"
+    cap_add:
+      - "SYS_ADMIN"
+    expose:
+      - 9222
+
   database:
     image: postgres:${POSTGRES_VERSION:-13}-alpine
     environment:
@@ -23,6 +50,15 @@ services:
     ports:
       - "8000:80"
 
+  node:
+    environment:
+      - NODE_ENV=dev
+    build:
+      context: ./docker/node
+    working_dir: /srv
+    volumes:
+      - ./:/srv/
+
   php:
     build:
       context: ./docker/php
@@ -36,35 +72,6 @@ services:
       - ./docker/php/config/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
     expose:
       - 9000
-
-    environment:
-      APP_ENV: dev
-      BLACKFIRE_SERVER_ID: ~
-      BLACKFIRE_SERVER_TOKEN: ~
-
-  node:
-    environment:
-      - NODE_ENV=dev
-    build:
-      context: ./docker/node
-    working_dir: /srv
-    volumes:
-      - ./:/srv/
-
-  chrome:
-    image: zenika/alpine-chrome:89
-    command: "chromium-browser \
-      --headless \
-      --disable-gpu \
-      --no-sandbox \
-      --disable-software-rasterizer \
-      --disable-dev-shm-usage \
-      --remote-debugging-address=0.0.0.0 \
-      --remote-debugging-port=9222"
-    cap_add:
-      - "SYS_ADMIN"
-    expose:
-      - 9222
 
 networks:
   default:
