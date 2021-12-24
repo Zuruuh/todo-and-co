@@ -12,6 +12,7 @@ use App\Entity\User,
 /**
  * @codeCoverageIgnore
  */
+#[Route('/users')]
 class UserController extends AbstractController
 {
     public function __construct(
@@ -19,19 +20,19 @@ class UserController extends AbstractController
     ) {
     }
 
-    #[Route("/users", name: "user_list")]
+    #[Route(name: 'user_list')]
     public function listAction(Request $request): Response
     {
         return $this->userService->listAction($request);
     }
 
-    #[Route("/users/create", name: "user_create")]
+    #[Route('/create', name: 'user_create')]
     public function createAction(Request $request): Response
     {
         return $this->userService->createAction($request);
     }
 
-    #[Route("/users/{id}/edit", name: "user_edit")]
+    #[Route('/{id}/edit', name: 'user_edit')]
     public function editAction(User $user, Request $request): Response
     {
         return $this->userService->editAction($user, $request);

@@ -20,13 +20,13 @@ class SecurityController extends AbstractController
 
     // https://symfony.com/doc/current/best_practices.html#use-a-single-action-to-render-and-process-the-form
     // Only use one single route for login & login form processing 
-    #[Route("/login", name: "login")]
+    #[Route('/login', name: 'login')]
     public function loginAction(): Response
     {
         return $this->securityService->loginAction();
     }
 
-    #[Route("/logout", name: "logout")]
+    #[Route('/logout', name: 'logout')]
     public function logoutAction(): void
     {
         // Blank method as it will be intercepted by firewall

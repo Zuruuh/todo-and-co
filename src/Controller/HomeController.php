@@ -17,7 +17,7 @@ class HomeController extends AbstractController
     ) {
     }
 
-    #[Route("/", name: "homepage")]
+    #[Route('/', name: 'homepage')]
     public function homeAction(): Response
     {
         return $this->homeService->homeAction();
