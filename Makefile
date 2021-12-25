@@ -8,13 +8,15 @@
 ##
 ##
 
-DOCKER_COMPOSE  = docker-compose -f docker-compose.yaml
+DOCKER_COMPOSE  = docker-compose -f docker-compose.yaml --env-file ./.env.local
 
 EXEC_PHP        = $(DOCKER_COMPOSE) exec -T php /entrypoint
 EXEC_JS         = $(DOCKER_COMPOSE) exec -T node /entrypoint
 
+REDIS           = $(DOCKER_COMPOSE) exec -T redis redis-cli
+
 SYMFONY         = $(EXEC_PHP) bin/console
-PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html coverage
+PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html coverage -v -c ./phpunit.xml.dist
 COMPOSER        = $(EXEC_PHP) composer
 YARN        	= $(EXEC_JS) yarn
 
@@ -31,7 +33,7 @@ kill:
 install: ## Install and start the project
 install: .env.local build start assets db
 
-restart: ## STop the project and restart it using latest docker images
+restart: ## Stop the project and restart it using latest docker images
 restart: kill install
 
 reset: ## Stop and start a fresh install of the project
@@ -85,6 +87,9 @@ db-validate-schema: ## Validate the database schema
 db-validate-schema: .env.local vendor
 	$(SYMFONY) doctrine:schema:validate
 
+redis-flush:
+	$(REDIS) flushall
+
 assets: ## Run Webpack Encore to transpile assets
 assets: node_modules
 	$(YARN) run dev
@@ -117,7 +122,7 @@ node_modules: yarn.lock
 		cp .env .env.local;\
 	fi
 
-.PHONY: db migration migrate db-update-schema db-validate-schema env
+.PHONY: db migration migrate db-update-schema db-validate-schema redis-flush
 
 ## 
 ## -----
@@ -128,7 +133,7 @@ node_modules: yarn.lock
 test-env:
 	$(eval APP_ENV := test)
 
-test-init: test-env db
+test-init: test-env db redis-flush
 
 unit: ## Run all unit tests
 unit: test-init
@@ -136,6 +141,8 @@ unit: test-init
 
 e2e: ## Run all end-to-end tests
 	$(PHPUNIT) --group e2e
+
+test-cleanup: redis-flush
 
 test: ## Run all tests in the tests/ folder
 test: test-init
