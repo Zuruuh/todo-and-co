@@ -81,7 +81,11 @@ class UserType extends AbstractType
             // see https://stackoverflow.com/questions/51744484/symfony-form-choicetype-error-array-to-string-covnersion
             $builder->get('roles')->addModelTransformer(new CallbackTransformer(
                 function ($rolesArray) {
-                    return count($rolesArray) ? $rolesArray[0] : null;
+                    return count($rolesArray)
+                        ? (array_key_exists(0, $rolesArray)
+                            ? $rolesArray[0]
+                            : null
+                        ) : null;
                 },
                 function ($rolesString) {
                     return [$rolesString];
