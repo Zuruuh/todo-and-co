@@ -7,16 +7,17 @@
     {% if error %}
         <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
-
     <h1 class="h3 mb-3 font-weight-normal">Connectez-vous !</h1>
     <label for="username">Nom d'utilisateur: </label>
     <input type="text" value="{{ last_username }}" name="username" id="username" class="form-control" autocomplete="username" required autofocus>
     <label for="password">Mot de passe: </label>
     <input type="password" name="password" id="password" class="form-control" autocomplete="current-password" required>
 
+    {% if csrf_enabled %}
     <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}"
     >
+    {% endif %}
     <button class="btn btn-lg btn-primary" id="submit-login-form" type="submit">
         Se Connecter
     </button>

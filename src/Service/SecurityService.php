@@ -10,6 +10,7 @@ class SecurityService
     public function __construct(
         private AuthenticationUtils $authUtils,
         private UtilsService $utils,
+        private string $env,
     ) {
     }
     /**
@@ -26,6 +27,7 @@ class SecurityService
         return $this->utils->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error'         => $error,
+            'csrf_enabled'  => $this->env === 'prod',
         ]);
     }
 }
