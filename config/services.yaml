@@ -20,8 +20,12 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
       - "../src/Tests/"
-  App\Service\TraitService:
-    public: true
+  App\Service\SecurityService:
+    arguments:
+      $env: "%kernel.environment%"
+  App\Security\AppAuthenticator:
+    arguments:
+      $app_env: "%kernel.environment%"
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
