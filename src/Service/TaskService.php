@@ -145,7 +145,7 @@ class TaskService
      */
     public function listTasks(bool $done): array
     {
-        return $this->taskRepo->findBy(['isDone' => $done]);
+        return $this->taskRepo->findBy(['isDone' => $done], ['lastUpdate' => 'DESC']);
     }
 
     /**
