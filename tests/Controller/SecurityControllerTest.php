@@ -90,12 +90,12 @@ class SecurityControllerTest extends MinkTestCase
     public function testLogout(): void
     {
         $session = $this->visit(authenticated: true);
-        $this->assertTrue($session->getPage()->has('css', '#auth-logout'));
         $this->screenshotSession($session, 'should-be-logged-in');
+        $this->assertTrue($session->getPage()->has('css', '#auth-logout'));
 
         $this->visit('/logout', $session);
-        $this->assertSame(self::APP_URL . '/', $session->getCurrentUrl());
         $this->screenshotSession($session, 'should-not-be-logged-in');
+        $this->assertSame(self::APP_URL . '/', $session->getCurrentUrl());
     }
 
     #[ScreenshotFolder('redirection')]
