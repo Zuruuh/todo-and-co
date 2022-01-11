@@ -74,7 +74,7 @@ class TaskService
         $form = $this->utils->generateForm($request, $task)->form;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->update();
+            $this->update($task);
             $message = 'La tâche a bien été modifiée.';
             $this->utils->addFlash($message, 'success');
 
@@ -170,8 +170,10 @@ class TaskService
      *
      * @return void
      */
-    public function update(): void
+    public function update(Task $task): void
     {
+        $task->setLastUpdate(new \DateTime());
+        $this->em->persist($task);
         $this->em->flush();
     }
 
