@@ -32,7 +32,7 @@ class UserController extends AbstractController
         return $this->userService->createAction($request);
     }
 
-    #[Route('/{id}/edit', name: 'user_edit')]
+    #[Route('/{id}/edit', name: 'user_edit', requirements: ['id' => '\d+'])]
     public function editAction(User $user, Request $request): Response
     {
         return $this->userService->editAction($user, $request);
