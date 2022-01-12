@@ -80,7 +80,7 @@ class TaskServiceTest extends KernelTestCase
         $this->taskService->save($task);
 
         $task->setTitle(self::TASK_EDITED_TITLE)->setContent(self::TASK_EDITED_CONTENT);
-        $this->taskService->update();
+        $this->taskService->update($task);
 
         $this->assertNotSame(self::TASK_TITLE, $task->getTitle());
         $this->assertNotSame(self::TASK_CONTENT, $task->getContent());
