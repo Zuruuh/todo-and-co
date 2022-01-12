@@ -7,7 +7,8 @@ use App\Entity\Task,
     Symfony\Component\HttpFoundation\Request,
     Symfony\Bundle\FrameworkBundle\Controller\AbstractController,
     Symfony\Component\HttpFoundation\Response,
-    Symfony\Component\Routing\Annotation\Route;
+    Symfony\Component\Routing\Annotation\Route,
+    Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 
 /**
  * @codeCoverageIgnore
@@ -45,18 +46,21 @@ class TaskController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'task_edit', requirements: ['id' => '\d+'])]
+    #[Entity(Task::class, options: ['id' => 'id'])]
     public function editAction(Task $task, Request $request): Response
     {
         return $this->taskService->editAction($task, $request);
     }
 
     #[Route('/{id}/toggle', name: 'task_toggle', requirements: ['id' => '\d+'])]
+    #[Entity(Task::class, options: ['id' => 'id'])]
     public function toggleAction(Task $task, Request $request): Response
     {
         return $this->taskService->toggleAction($task, $request);
     }
 
     #[Route('/{id}/delete', name: 'task_delete', requirements: ['id' => '\d+'])]
+    #[Entity(Task::class, options: ['id' => 'id'])]
     public function deleteAction(Task $task, Request $request): Response
     {
         return $this->taskService->deleteAction($task, $request);
