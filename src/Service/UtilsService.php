@@ -1,41 +1,48 @@
 <?php
 
-namespace App\Trait;
+namespace App\Service;
 
-use App\Repository\TaskRepository;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use LogicException;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Twig\Environment;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\Security;
+use stdClass,
+    LogicException,
+    Twig\Environment,
+    Symfony\Component\Form\FormFactoryInterface,
+    Symfony\Component\HttpFoundation\RedirectResponse,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\HttpFoundation\RequestStack,
+    Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface,
+    Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-trait ServiceTrait
+class UtilsService
 {
-    private string $DEFAULT_FORM_TYPE_CLASS = "No form type class set";
-    private string $DEFAULT_ENTITY_CLASS = "No entity class set";
+    const DEFAULT_FORM_TYPE_CLASS = "No form type class set";
+    const DEFAULT_ENTITY_CLASS = "No entity class set";
+
+    private string $formTypeClass = self::DEFAULT_FORM_TYPE_CLASS;
+    private string $entityClass = self::DEFAULT_ENTITY_CLASS;
 
     public function __construct(
         private Environment $twig,
-        private TaskRepository $taskRepo,
-        private UserRepository $userRepo,
         private FormFactoryInterface $form,
-        private EntityManagerInterface $em,
-        private UserPasswordHasherInterface $hasher,
         private UrlGeneratorInterface $router,
-        private Security $security,
         private RequestStack $requestStack,
-
     ) {
-        $this->FORM_TYPE_CLASS = $this->FORM_TYPE_CLASS ?? $this->DEFAULT_FORM_TYPE_CLASS;
-        $this->ENTITY_CLASS = $this->ENTITY_CLASS ?? $this->DEFAULT_ENTITY_CLASS;
+    }
+
+    /**
+     * Sets the classes defaults for form generation.
+     * 
+     * @param ?string $formTypeClass   The form class to generate.
+     * @param ?string $entityClass The entity class to generate.
+     * 
+     * @return void
+     */
+    public function setupFormDefaults(
+        ?string $formTypeClass = null,
+        ?string $entityClass = null
+    ): void {
+        if ($formTypeClass) $this->formTypeClass = $formTypeClass;
+        if ($entityClass) $this->entityClass = $entityClass;
     }
 
     /**
@@ -79,7 +86,7 @@ trait ServiceTrait
      */
     public function isEntityClassDefined(?string $entityClass = null): mixed
     {
-        $entityClassNotSet = $this->ENTITY_CLASS === $this->DEFAULT_ENTITY_CLASS;
+        $entityClassNotSet = $this->entityClass === self::DEFAULT_ENTITY_CLASS;
 
         if (!$entityClass) {
             if ($entityClassNotSet) {
@@ -87,7 +94,7 @@ trait ServiceTrait
             }
         }
 
-        return $entityClass ?? $this->ENTITY_CLASS;
+        return $entityClass ?? $this->entityClass;
     }
 
     /**
@@ -102,12 +109,12 @@ trait ServiceTrait
     public function isFormTypeClassDefined(?string $formTypeClass = null): string
     {
         if (!$formTypeClass) {
-            if ($this->FORM_TYPE_CLASS === $this->DEFAULT_FORM_TYPE_CLASS) {
+            if ($this->formTypeClass === self::DEFAULT_FORM_TYPE_CLASS) {
                 throw new LogicException('Tried using "generateForm" method whilst the service class did not specify it\'s Form Type Class');
             }
         }
 
-        return $formTypeClass ?? $this->FORM_TYPE_CLASS;
+        return $formTypeClass ?? $this->formTypeClass;
     }
 
 
@@ -122,7 +129,7 @@ trait ServiceTrait
         ?string $formTypeClass = null,
         ?string $entityClass = null,
         array $formOptions = []
-    ): \stdClass {
+    ): stdClass {
         $entityClass   = $this->isEntityClassDefined($entityClass);
         $formTypeClass = $this->isFormTypeClassDefined($formTypeClass);
 

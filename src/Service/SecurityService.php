@@ -2,18 +2,15 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Twig\Environment;
-use App\Trait\ServiceTrait;
+use Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityService
 {
-    use ServiceTrait;
-
     public function __construct(
-        private Environment $twig,
-        private AuthenticationUtils $authUtils
+        private AuthenticationUtils $authUtils,
+        private UtilsService $utils,
+        private string $env,
     ) {
     }
     /**
@@ -27,9 +24,10 @@ class SecurityService
         $error = $this->authUtils->getLastAuthenticationError();
         $lastUsername = $this->authUtils->getLastUsername();
 
-        return $this->render('security/login.html.twig', [
+        return $this->utils->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error'         => $error,
+            'csrf_enabled'  => $this->env === 'prod',
         ]);
     }
 }

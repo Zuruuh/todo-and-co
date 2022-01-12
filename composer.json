@@ -20,7 +20,9 @@
     "doctrine/doctrine-migrations-bundle": "^3.0",
     "doctrine/orm": "^2.10",
     "incenteev/composer-parameter-handler": "^2.1",
-    "sensio/framework-extra-bundle": "^6.2.1",
+    "predis/predis": "^1.1",
+    "sensio/framework-extra-bundle": "5.6.1",
+    "snc/redis-bundle": "^4.0",
     "symfony/browser-kit": "5.4.*",
     "symfony/console": "5.4.*",
     "symfony/doctrine-messenger": "5.4.*",
@@ -29,12 +31,11 @@
     "symfony/form": "5.4.*",
     "symfony/framework-bundle": "5.4.*",
     "symfony/monolog-bundle": "^3.7",
-    "symfony/panther": "^2.0",
+    "symfony/options-resolver": "5.4.*",
     "symfony/password-hasher": "5.4.*",
     "symfony/polyfill-apcu": "^1.23",
     "symfony/runtime": "5.4.*",
     "symfony/security-bundle": "5.4.*",
-    "symfony/swiftmailer-bundle": "^3.5",
     "symfony/twig-bundle": "5.4.*",
     "symfony/validator": "5.4.*",
     "symfony/webpack-encore-bundle": "^1.12",
@@ -42,12 +43,14 @@
     "twig/twig": "^3.3"
   },
   "require-dev": {
+    "behat/mink": "^1.9",
     "dbrekelmans/bdi": "^1.0",
+    "dmore/chrome-mink-driver": "^2.8",
     "fakerphp/faker": "^1.16",
     "phpunit/phpunit": "^9.5",
     "symfony/debug-bundle": "5.4.*",
     "symfony/maker-bundle": "^1.36",
-    "symfony/phpunit-bridge": "^3.0",
+    "symfony/phpunit-bridge": "5.*",
     "symfony/stopwatch": "5.4.*",
     "symfony/web-profiler-bundle": "5.4.*"
   },
@@ -56,12 +59,23 @@
     "preferred-install": {
       "*": "dist"
     },
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "symfony/flex": true,
+      "symfony/runtime": true
+    }
   },
   "extra": {
     "symfony": {
       "allow-contrib": false,
       "require": "5.4.*"
+    }
+  },
+  "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
     }
   }
 }

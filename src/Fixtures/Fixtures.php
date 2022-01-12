@@ -16,6 +16,9 @@ class Fixtures extends Fixture
 {
     private UserPasswordHasherInterface $hasher;
 
+    private const AMOUNT_OF_USERS         = 25;
+    private const AMOUT_OF_TASKS_PER_USER = 5;
+
     public function __construct(UserPasswordHasherInterface $hasher)
     {
         $this->hasher = $hasher;
@@ -24,7 +27,7 @@ class Fixtures extends Fixture
     {
         $faker = Faker\Factory::create();
 
-        for ($i = 0; $i < 50; ++$i) {
+        for ($i = 0; $i < self::AMOUNT_OF_USERS; ++$i) {
 
             $user = (new User())
                 ->setUsername(
@@ -41,7 +44,7 @@ class Fixtures extends Fixture
 
             $password = $this->hasher->hashPassword($user, 'password');
             $user->setPassword($password);
-            for ($j = 0; $j < 10; ++$j) {
+            for ($j = 0; $j < self::AMOUT_OF_TASKS_PER_USER; ++$j) {
                 $task = (new Task())
                     ->setTitle($faker->word())
                     ->setContent($faker->text())

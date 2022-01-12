@@ -2,10 +2,14 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\Task;
-use App\Entity\User;
-use PHPUnit\Framework\TestCase;
+use App\Entity\Task,
+    App\Entity\User,
+    PHPUnit\Framework\TestCase;
 
+/**
+ * @group unit
+ * @group entity
+ */
 class TaskTest extends TestCase
 {
     public const TITLE   = 'Task Title';
@@ -55,6 +59,16 @@ class TaskTest extends TestCase
 
         $this->assertEquals($date, $task->getCreatedAt());
     }
+
+    public function testLastUpdate(): void
+    {
+        $task = new Task();
+        $date = new \Datetime();
+        $task->setLastUpdate($date);
+
+        $this->assertEquals($date, $task->getLastUpdate());
+    }
+
 
     public function testAuthor(): void
     {

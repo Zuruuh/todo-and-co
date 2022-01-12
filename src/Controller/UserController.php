@@ -2,39 +2,37 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Service\UserService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\User,
+    App\Service\UserService,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Bundle\FrameworkBundle\Controller\AbstractController,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @codeCoverageIgnore
  */
+#[Route('/users')]
 class UserController extends AbstractController
 {
-    private UserService $userService;
-
     public function __construct(
-        UserService $userService
+        private UserService $userService
     ) {
-        $this->userService = $userService;
     }
 
-    #[Route("/users", name: "user_list")]
+    #[Route(name: 'user_list')]
     public function listAction(Request $request): Response
     {
         return $this->userService->listAction($request);
     }
 
-    #[Route("/users/create", name: "user_create")]
+    #[Route('/create', name: 'user_create')]
     public function createAction(Request $request): Response
     {
         return $this->userService->createAction($request);
     }
 
-    #[Route("/users/{id}/edit", name: "user_edit")]
+    #[Route('/{id}/edit', name: 'user_edit', requirements: ['id' => '\d+'])]
     public function editAction(User $user, Request $request): Response
     {
         return $this->userService->editAction($user, $request);

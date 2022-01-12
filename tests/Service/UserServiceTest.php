@@ -2,12 +2,14 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\User;
-use App\Service\UserService;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
+use App\Entity\User,
+    App\Service\UserService,
+    Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * @group unit
+ * @group service
+ */
 class UserServiceTest extends KernelTestCase
 {
     private ?UserService $userService;

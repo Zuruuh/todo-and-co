@@ -2,18 +2,24 @@
 
 namespace App\Service;
 
-use App\Entity\User;
-use App\Form\UserType;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use App\Trait\ServiceTrait;
+use App\Entity\User,
+    App\Form\UserType,
+    App\Repository\UserRepository,
+    Doctrine\ORM\EntityManagerInterface,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface as Hasher;
 
 class UserService
 {
-    use ServiceTrait;
-
-    public string $ENTITY_CLASS = User::class;
-    public string $FORM_TYPE_CLASS = UserType::class;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UserRepository $userRepo,
+        private UtilsService $utils,
+        private Hasher $hasher,
+    ) {
+        $this->utils->setupFormDefaults(UserType::class, User::class);
+    }
 
     /*>>> Actions >>>*/
 
@@ -25,7 +31,7 @@ class UserService
      */
     public function listAction(): Response
     {
-        return $this->render('user/list.html.twig', [
+        return $this->utils->render('user/list.html.twig', [
             'users' => $this->list(),
         ]);
     }
@@ -40,17 +46,17 @@ class UserService
      */
     public function createAction(Request $request): Response
     {
-        $form = $this->generateForm($request);
+        $form = $this->utils->generateForm($request);
 
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->save($form->entity);
             $message = 'Cet utilisateur a bien été crée.';
-            $this->addFlash($message, 'success');
+            $this->utils->addFlash($message, 'success');
 
-            return $this->redirect('user_list');
+            return $this->utils->redirect('user_list');
         }
 
-        return $this->render('user/create.html.twig', [
+        return $this->utils->render('user/create.html.twig', [
             'form' => $form->form->createView()
         ]);
     }
@@ -67,17 +73,17 @@ class UserService
      */
     public function editAction(User $user, Request $request): Response
     {
-        $form = $this->generateForm($request, $user, formOptions: ['displayPasswordField' => false]);
+        $form = $this->utils->generateForm($request, $user, formOptions: ['displayPasswordField' => false]);
 
         if ($form->form->isSubmitted() && $form->form->isValid()) {
             $this->update($user);
             $message = "L'utilisateur a bien été modifié";
-            $this->addFlash($message, 'success');
+            $this->utils->addFlash($message, 'success');
 
-            return $this->redirect('user_list');
+            return $this->utils->redirect('user_list');
         }
 
-        return $this->render('user/edit.html.twig', ['form' => $form->form->createView(), 'user' => $user]);
+        return $this->utils->render('user/edit.html.twig', ['form' => $form->form->createView(), 'user' => $user]);
     }
 
     /*<<< Actions <<<*/

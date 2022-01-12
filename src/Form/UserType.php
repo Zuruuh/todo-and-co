@@ -2,18 +2,18 @@
 
 namespace App\Form;
 
-use App\Entity\User;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use App\Entity\User,
+    Symfony\Component\Form\AbstractType,
+    Symfony\Component\Form\CallbackTransformer,
+    Symfony\Component\Form\Extension\Core\Type\ChoiceType,
+    Symfony\Component\Form\FormBuilderInterface,
+    Symfony\Component\Form\Extension\Core\Type\EmailType,
+    Symfony\Component\Form\Extension\Core\Type\TextType,
+    Symfony\Component\Form\Extension\Core\Type\PasswordType,
+    Symfony\Component\OptionsResolver\OptionsResolver,
+    Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface,
+    Symfony\Component\Validator\Constraints\Length,
+    Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @codeCoverageIgnore
@@ -46,13 +46,12 @@ class UserType extends AbstractType
             ]);
         if ($this->displayPasswordField) {
             $builder
-                ->add('plainPassword', PasswordType::class, [
+                ->add('password', PasswordType::class, [
                     'attr' => [
                         'class' => 'password-field',
                         'placeholder' => '********'
                     ],
                     'required' => true,
-                    'mapped' => false,
                     'attr' => ['autocomplete' => 'new-password'],
                     'constraints' => [
                         new NotBlank([
@@ -81,7 +80,11 @@ class UserType extends AbstractType
             // see https://stackoverflow.com/questions/51744484/symfony-form-choicetype-error-array-to-string-covnersion
             $builder->get('roles')->addModelTransformer(new CallbackTransformer(
                 function ($rolesArray) {
-                    return count($rolesArray) ? $rolesArray[0] : null;
+                    return count($rolesArray)
+                        ? (array_key_exists(0, $rolesArray)
+                            ? $rolesArray[0]
+                            : null
+                        ) : null;
                 },
                 function ($rolesString) {
                     return [$rolesString];

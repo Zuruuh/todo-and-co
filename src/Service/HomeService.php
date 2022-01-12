@@ -2,13 +2,15 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Response;
-use App\Trait\ServiceTrait;
+use Symfony\Component\HttpFoundation\Response,
+    App\Service\UtilsService;
 
 class HomeService
 {
-    use ServiceTrait;
-
+    public function __construct(
+        private UtilsService $utils
+    ) {
+    }
     /**
      * Displays the home page.
      *
@@ -16,6 +18,6 @@ class HomeService
      */
     public function homeAction(): Response
     {
-        return $this->render('home/index.html.twig');
+        return $this->utils->render('home/index.html.twig');
     }
 }

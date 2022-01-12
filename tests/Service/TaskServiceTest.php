@@ -2,13 +2,17 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\Task;
-use App\Entity\User;
-use App\Repository\TaskRepository;
-use App\Service\TaskService;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use App\Entity\Task,
+    App\Entity\User,
+    App\Service\TaskService,
+    App\Repository\TaskRepository,
+    Doctrine\ORM\EntityManagerInterface,
+    Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * @group unit
+ * @group service
+ */
 class TaskServiceTest extends KernelTestCase
 {
     private ?TaskService            $taskService;

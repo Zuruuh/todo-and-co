@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Tests\Trait;
+namespace App\Tests\Service;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use App\Service\TraitService;
-use LogicException;
-use App\Entity\Task;
-use App\Entity\User;
-use App\Form\TaskType;
-use App\Form\UserType;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use LogicException,
+    App\Entity\Task,
+    App\Entity\User,
+    App\Form\TaskType,
+    App\Form\UserType,
+    App\Service\UtilsService,
+    Symfony\Component\Form\FormInterface,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Bundle\FrameworkBundle\Test\KernelTestCase,
+    Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class ServiceTraitTest extends KernelTestCase
+/**
+ * @group unit
+ * @group service
+ */
+class UtilsServiceTest extends KernelTestCase
 {
-    private ?TraitService $serviceTrait;
+    private ?UtilsService $utilsService;
 
     public const HOME_ROUTE  = 'homepage';
     public const LOGIN_ROUTE = 'security_login';
@@ -30,19 +33,19 @@ class ServiceTraitTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $this->serviceTrait = $container->get(TraitService::class);
+        $this->utilsService = $container->get(UtilsService::class);
         $this->router = $container->get(UrlGeneratorInterface::class);
     }
 
     public function testRedirection(): void
     {
-        $redirectedToHomepage = $this->serviceTrait->redirect(self::HOME_ROUTE);
+        $redirectedToHomepage = $this->utilsService->redirect(self::HOME_ROUTE);
         $homeRoute = $this->router->generate(self::HOME_ROUTE);
         $this->assertSame($homeRoute, $redirectedToHomepage->getTargetUrl());
         $this->assertSame(302, $redirectedToHomepage->getStatusCode());
 
 
-        $redirectedToLoginpage = $this->serviceTrait->redirect(self::LOGIN_ROUTE);
+        $redirectedToLoginpage = $this->utilsService->redirect(self::LOGIN_ROUTE);
         $loginRoute = $this->router->generate(self::LOGIN_ROUTE);
         $this->assertSame($loginRoute, $redirectedToLoginpage->getTargetUrl());
         $this->assertSame(302, $redirectedToLoginpage->getStatusCode());
@@ -50,7 +53,7 @@ class ServiceTraitTest extends KernelTestCase
 
     public function testRendering(): void
     {
-        $response = $this->serviceTrait->render(self::HOME_TEMPLATE);
+        $response = $this->utilsService->render(self::HOME_TEMPLATE);
         $page = $response->getContent();
 
         $this->assertIsString($page);
@@ -61,53 +64,52 @@ class ServiceTraitTest extends KernelTestCase
     public function testEntityClassDefinition(): void
     {
         try {
-            $this->serviceTrait->isEntityClassDefined();
+            $this->utilsService->isEntityClassDefined();
         } catch (LogicException $e) {
             $this->assertInstanceOf(LogicException::class, $e);
         }
 
-        $userClass = $this->serviceTrait->isEntityClassDefined(User::class);
+        $userClass = $this->utilsService->isEntityClassDefined(User::class);
         $this->assertSame(User::class, $userClass);
 
-        $this->serviceTrait->ENTITY_CLASS = User::class;
-        $userClass = $this->serviceTrait->isEntityClassDefined();
+        $this->utilsService->setupFormDefaults(entityClass: User::class);
+        $userClass = $this->utilsService->isEntityClassDefined();
         $this->assertSame(User::class, $userClass);
 
-        $taskClass = $this->serviceTrait->isEntityClassDefined(Task::class);
+        $taskClass = $this->utilsService->isEntityClassDefined(Task::class);
         $this->assertSame(Task::class, $taskClass);
     }
 
     public function testFormTypeClassDefinition(): void
     {
         try {
-            $this->serviceTrait->isFormTypeClassDefined();
+            $this->utilsService->isFormTypeClassDefined();
         } catch (LogicException $e) {
             $this->assertInstanceOf(LogicException::class, $e);
         }
 
-        $userFormTypeClass = $this->serviceTrait->isFormTypeClassDefined(UserType::class);
+        $userFormTypeClass = $this->utilsService->isFormTypeClassDefined(UserType::class);
         $this->assertSame(UserType::class, $userFormTypeClass);
 
-        $this->serviceTrait->FORM_TYPE_CLASS = UserType::class;
-        $userFormTypeClass = $this->serviceTrait->isFormTypeClassDefined();
+        $this->utilsService->setupFormDefaults(formTypeClass: UserType::class);
+        $userFormTypeClass = $this->utilsService->isFormTypeClassDefined();
         $this->assertSame(UserType::class, $userFormTypeClass);
 
-        $taskFormTypeClass = $this->serviceTrait->isFormTypeClassDefined(TaskType::class);
+        $taskFormTypeClass = $this->utilsService->isFormTypeClassDefined(TaskType::class);
         $this->assertSame(TaskType::class, $taskFormTypeClass);
     }
 
     public function testFormGeneration(): void
     {
-        $this->serviceTrait->ENTITY_CLASS = User::class;
-        $this->serviceTrait->FORM_TYPE_CLASS = UserType::class;
+        $this->utilsService->setupFormDefaults(UserType::class, User::class);
 
-        $form = $this->serviceTrait->generateForm(new Request());
+        $form = $this->utilsService->generateForm(new Request());
         $this->assertInstanceOf(FormInterface::class, $form->form);
         $this->assertInstanceOf(User::class, $form->entity);
     }
 
     protected function tearDown(): void
     {
-        $this->serviceTrait = null;
+        $this->utilsService = null;
     }
 }

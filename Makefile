@@ -8,13 +8,15 @@
 ##
 ##
 
-DOCKER_COMPOSE  = docker-compose -f docker-compose.yaml
+DOCKER_COMPOSE  = docker-compose -f docker-compose.yaml --env-file ./.env.local
 
 EXEC_PHP        = $(DOCKER_COMPOSE) exec -T php /entrypoint
 EXEC_JS         = $(DOCKER_COMPOSE) exec -T node /entrypoint
 
+REDIS           = $(DOCKER_COMPOSE) exec -T redis redis-cli
+
 SYMFONY         = $(EXEC_PHP) bin/console
-PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html dist
+PHPUNIT			= $(EXEC_PHP) bin/phpunit --coverage-html coverage -v -c ./phpunit.xml.dist
 COMPOSER        = $(EXEC_PHP) composer
 YARN        	= $(EXEC_JS) yarn
 
@@ -31,14 +33,16 @@ kill:
 install: ## Install and start the project
 install: .env.local build start assets db
 
-restart: ## STop the project and restart it using latest docker images
+restart: ## Stop the project and restart it using latest docker images
 restart: kill install
 
 reset: ## Stop and start a fresh install of the project
 reset: kill remove install
 
 remove:
-	-rm -rf vendor node_modules var
+	-rm -rf vendor node_modules var/*
+	-rm .phpunit.result.cache
+	-touch var/.gitkeep
 
 start: ## Start the containers
 	$(DOCKER_COMPOSE) up -d --remove-orphans --no-recreate
@@ -85,6 +89,9 @@ db-validate-schema: ## Validate the database schema
 db-validate-schema: .env.local vendor
 	$(SYMFONY) doctrine:schema:validate
 
+redis-flush:
+	$(REDIS) flushall
+
 assets: ## Run Webpack Encore to transpile assets
 assets: node_modules
 	$(YARN) run dev
@@ -117,7 +124,7 @@ node_modules: yarn.lock
 		cp .env .env.local;\
 	fi
 
-.PHONY: db migration migrate db-update-schema db-validate-schema env
+.PHONY: db migration migrate db-update-schema db-validate-schema redis-flush
 
 ## 
 ## -----
@@ -128,16 +135,35 @@ node_modules: yarn.lock
 test-env:
 	$(eval APP_ENV := test)
 
+toggle-env:
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env test
+
+test-init: test-env toggle-env db redis-flush
+
 unit: ## Run all unit tests
-unit: test-env db
-	$(PHPUNIT) --group unit
+unit: test-init
+	-$(PHPUNIT) --group unit
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
+
+e2e: ## Run all end-to-end tests
+e2e: test-init
+	-$(PHPUNIT) --group e2e
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
+
+task: ## Run all end-to-end tests
+task: test-init
+	-$(PHPUNIT) --group task
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
+
+test-cleanup: redis-flush
 
 test: ## Run all tests in the tests/ folder
-test: #install unit 
-test: unit 
-	$(PHPUNIT)
+test: toggle-env test-init
+	-$(PHPUNIT)
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
 
-.PHONY: unit test test-env
+
+.PHONY: unit e2e test test-init test-env toggle-env
 
 .DEFAULT_GOAL := help
 help:

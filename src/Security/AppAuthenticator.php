@@ -24,11 +24,10 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'security_login';
 
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator)
-    {
-        $this->urlGenerator = $urlGenerator;
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator,
+        private string                $app_env
+    ) {
     }
 
     public function authenticate(Request $request): Passport
@@ -40,9 +39,11 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
         return new Passport(
             new UserBadge($username),
             new PasswordCredentials($request->request->get('password', '')),
-            [
-                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
-            ]
+            $this->app_env === 'prod'
+                ?    [
+                    new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
+                ]
+                : []
         );
     }
 
