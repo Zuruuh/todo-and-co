@@ -40,7 +40,9 @@ reset: ## Stop and start a fresh install of the project
 reset: kill remove install
 
 remove:
-	-rm -rf vendor node_modules var
+	-rm -rf vendor node_modules var/*
+	-rm .phpunit.result.cache
+	-touch var/.gitkeep
 
 start: ## Start the containers
 	$(DOCKER_COMPOSE) up -d --remove-orphans --no-recreate
@@ -133,23 +135,35 @@ node_modules: yarn.lock
 test-env:
 	$(eval APP_ENV := test)
 
-test-init: test-env db redis-flush
+toggle-env:
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env test
+
+test-init: test-env toggle-env db redis-flush
 
 unit: ## Run all unit tests
 unit: test-init
-	$(PHPUNIT) --group unit
+	-$(PHPUNIT) --group unit
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
 
 e2e: ## Run all end-to-end tests
-	$(PHPUNIT) --group e2e
+e2e: test-init
+	-$(PHPUNIT) --group e2e
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
+
+task: ## Run all end-to-end tests
+task: test-init
+	-$(PHPUNIT) --group task
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
 
 test-cleanup: redis-flush
 
 test: ## Run all tests in the tests/ folder
-test: test-init
-	$(PHPUNIT)
+test: toggle-env test-init
+	-$(PHPUNIT)
+	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
 
 
-.PHONY: unit test test-init test-env
+.PHONY: unit e2e test test-init test-env toggle-env
 
 .DEFAULT_GOAL := help
 help:
