@@ -100,7 +100,11 @@ class UserService
     }
 
     /**
-     * @return string[]
+     * Saves a user to database
+     *
+     * @param User $user The user to save
+     *
+     * @return void
      */
     public function save(User $user): void
     {
@@ -112,15 +116,15 @@ class UserService
     }
 
     /**
-     * @return string[]
+     * Updates a user in database
+     *
+     * @param User $user The user to update
+     *
+     * @return void
      */
     public function update(User $user): void
     {
-        if ($this->hasher->needsRehash($user)) {
-            $password = $this->hasher->hashPassword($user, $user->getPassword());
-            $user->setPassword($password);
-        }
-
+        $this->em->persist($user);
         $this->em->flush();
     }
 }
