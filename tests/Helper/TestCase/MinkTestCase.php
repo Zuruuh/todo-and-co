@@ -4,14 +4,19 @@ namespace App\Tests\Helper\TestCase;
 
 use LogicException,
     App\Tests\Helper\ScreenshotFolder,
-    PHPUnit\Framework\TestCase,
+    Symfony\Bundle\FrameworkBundle\Test\KernelTestCase,
     Behat\Mink\Mink,
     Behat\Mink\Session,
     DMore\ChromeDriver\ChromeDriver,
     ReflectionClass;
 
-abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
+abstract class MinkTestCase extends KernelTestCase implements MinkTestCaseInterface
 {
+    protected ?Mink    $mink;
+    protected ?Session $authenticatedSession;
+    protected ?Session $anonymousSession;
+
+
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -32,6 +37,7 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
      */
     protected function setUpMink(): void
     {
+        self::bootKernel();
         $authenticatedSession = new Session(new ChromeDriver(self::CHROME_URL, base_url: ''));
         $anonymousSession = new Session(new ChromeDriver(self::CHROME_URL, base_url: ''));
 
@@ -40,6 +46,18 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
             'anonymousSession' => $anonymousSession
         ]);
         $mink->setDefaultSessionName('authenticatedSession');
+        $sessions = [$authenticatedSession, $anonymousSession];
+        foreach ($sessions as $session) {
+            if ($session->isStarted()) {
+                /**
+                 * Resetting session here as if a test crashes, the tearDown
+                 * method will not be called and the session will stay 
+                 * open until next test, which can cause multiple problems.
+                 */
+                $session->reset();
+            }
+        }
+
         $authenticatedSession->start();
         $anonymousSession->start();
 
@@ -47,7 +65,7 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
         $this->authenticatedSession = $authenticatedSession;
         $this->anonymousSession = $anonymousSession;
 
-        $authenticatedSession = $this->loginSession($authenticatedSession);
+        $authenticatedSession = $this->loginSession($authenticatedSession, admin: false);
 
         $this->mink = $mink;
     }
@@ -68,7 +86,8 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
                 ? $this->authenticatedSession
                 : $this->anonymousSession
             );
-        $session->visit($this->getUrlForRoute($route));
+        $session->getDriver()->visit($this->getUrlForRoute($route));
+        $session->getDriver()->wait(2500, 'document.readyState === "complete"');
 
         return $session;
     }
@@ -88,12 +107,13 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
     /**
      * Creates a new screenshot of browser windows & saves it.
      *
-     * @param Session $session  The browser session to save.
-     * @param string  $fileName The name of the saved image. Defaults to current timestamp.
+     * @param Session $session         The browser session to save.
+     * @param string  $fileName        The name of the saved image. Defaults to current timestamp.
+     * @param bool    $useFunctionName If true, use the function name as the file name's prefix.
      * 
      * @return bool
      */
-    protected function screenshotSession(Session $session, ?string $fileName = null): bool
+    protected function screenshotSession(Session $session, ?string $fileName = null, bool $useFunctionName = false): bool
     {
         $functionName = $this->getLastFunctionCall();
         $reflection = new ReflectionClass(get_class($this));
@@ -114,11 +134,12 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
             );
         }
 
-        $folder  = trim($classAttributes[0]->newInstance()->path, '/\t\n\r\0\x0B');
+        $folder  = trim($classAttributes[0]->newInstance()->path, "/\t\n\r\0\x0B");
         $subFolder = array_key_exists(0, $methodAttribute)
             ? trim($methodAttribute[0]->newInstance()->path, '/')
             : '.';
         $fileName = $fileName ?? time();
+        $fileName = $useFunctionName ? sprintf('%s-%s', $functionName, $fileName) : $fileName;
 
         $path = sprintf('%s/%s/%s/', self::SCREENSHOTS_DIR, $folder, $subFolder);
         if (!file_exists($path)) {
@@ -127,9 +148,17 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
         $path = realpath($path);
 
         try {
-            file_put_contents(sprintf('%s/%s.png', $path, $fileName), $session->getScreenshot());
+            $screenshot = $session->getScreenshot();
+            $file = sprintf('%s/%s.png', $path, $fileName);
+            if ($screenshot) {
+                file_put_contents($file, $screenshot);
+            } else {
+                fwrite(STDERR, sprintf('Could not write file %s', $file));
+            }
+
+            return boolval($screenshot);
         } catch (\Exception $_) {
-            fwrite(STDERR, print_r($_, true));
+            // fwrite(STDERR, print_r($_, true));
 
             return false;
         }
@@ -147,16 +176,20 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
      *
      * @return Session
      */
-    protected function loginSession(Session $session, ?string $username = null, ?string $password = null, bool $admin = false): Session
-    {
+    protected function loginSession(
+        Session $session,
+        ?string $username = null,
+        ?string $password = null,
+        bool $admin = false,
+    ): Session {
         $username = $username
-            ?? $admin
-            ? self::DEV_ADMIN_USERNAME
-            : self::DEV_USER_USERNAME;
+            ?? ($admin
+                ? self::DEV_ADMIN_USERNAME
+                : self::DEV_USER_USERNAME);
         $password = $password
-            ?? $admin
-            ? self::DEV_ADMIN_PASSWORD
-            : self::DEV_USER_PASSWORD;
+            ?? ($admin
+                ? self::DEV_ADMIN_PASSWORD
+                : self::DEV_USER_PASSWORD);
 
         $currentUrl = $session->getCurrentUrl();
         $currentUrl = $currentUrl === self::CHROME_DEFAULT_URL ? self::APP_URL : $currentUrl;
@@ -219,13 +252,10 @@ abstract class MinkTestCase extends TestCase implements MinkTestCaseInterface
      */
     protected function tearDownMink(): void
     {
+        $this->mink->resetSessions();
 
-        $this->authenticatedSession->reset();
         unset($this->authenticatedSession);
-
-        $this->anonymousSession->reset();
         unset($this->anonymousSession);
-
         unset($this->mink);
     }
 }
