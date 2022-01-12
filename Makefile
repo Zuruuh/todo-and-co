@@ -150,11 +150,6 @@ e2e: test-init
 	-$(PHPUNIT) --group e2e
 	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
 
-task: ## Run all end-to-end tests
-task: test-init
-	-$(PHPUNIT) --group task
-	$(EXEC_PHP) php /srv/scripts/EnvModifier.php --env dev
-
 test-cleanup: redis-flush
 
 test: ## Run all tests in the tests/ folder
